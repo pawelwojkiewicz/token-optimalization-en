@@ -28,14 +28,17 @@ import { TICKET_CLASSIFICATION_SCHEMA } from "../shared/schemas.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const CHEAP_MODEL = "gpt-4.1-mini";
-const EXPENSIVE_MODEL = "gpt-5";
+const CHEAP_MODEL = "gpt-4o-mini";
+const EXPENSIVE_MODEL = "gpt-5.5";
 
 async function main() {
   const previousStats = await loadStatsBefore(5);
 
   // 1. Wczytaj CSV + JS filtrowanie wierszy (z step-03)
-  const csvPath = path.resolve(process.cwd(), "presentation/data/e-commerce-tickets-en.csv");
+  const csvPath = path.resolve(
+    process.cwd(),
+    "presentation/data/e-commerce-tickets-en.csv",
+  );
   const csvContent = await readFile(csvPath, "utf8");
 
   const allRecords = parse(csvContent, {

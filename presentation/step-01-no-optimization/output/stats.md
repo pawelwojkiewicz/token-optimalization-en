@@ -1,7 +1,6 @@
 # Step 01 — Brak optymalizacji
 
 ## Parametry
-
 - **Model:** gpt-5.5
 - **Język promptu:** Polski
 - **Optymalizacje:** BRAK
@@ -9,20 +8,17 @@
 - **Zwróconych (Elektronika):** 19
 
 ## Zużycie tokenów
-
-| Metryka           | Wartość                                   |
-| ----------------- | ----------------------------------------- |
-| Prompt tokens     | 9,008                                     |
-| Completion tokens | 3,867                                     |
-| **TOTAL tokens**  | **12,875**                                |
-| **Koszt**         | **$0.1611** (przy 5 000 rekordów → ~\$16) |
+| Metryka | Wartość |
+|---------|---------|
+| Prompt tokens | 9,068 |
+| Completion tokens | 1,782 |
+| **TOTAL tokens** | **10,850** |
+| **Koszt** | **$0.0988** |
 
 ## Czas odpowiedzi
-
-43.0s
+31.9s
 
 ## Porównanie z plikiem referencyjnym
-
 - **Tickety referencyjne (Elektronika):** 19
 - **Tickety zwrócone przez model:** 19
 

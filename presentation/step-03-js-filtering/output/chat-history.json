@@ -1,6 +1,6 @@
 {
-  "model": "gpt-5",
-  "timestamp": "2026-06-03T15:56:45.051Z",
+  "model": "gpt-5.5",
+  "timestamp": "2026-06-10T12:00:50.223Z",
   "jsPreFilter": {
     "totalRecords": 50,
     "electronicsRecords": 19,
@@ -9,27 +9,27 @@
   "messages": [
     {
       "role": "system",
-      "content": "You are an expert in classifying customer support tickets for an e-commerce store.\n\nFor each ticket provided, determine:\n1. Priority — one of: low, medium, high, critical\n2. Sentiment — one of: positive, neutral, negative\n\nPriority definitions:\n- critical: customer threatens legal action, dangerous product, suspected account breach\n- high: large amount, urgent deadline, emotional language (scandal, drama, immediately)\n- medium: standard complaint or issue requiring action\n- low: informational question, praise, non-urgent request\n\nSentiment definitions:\n- positive: customer is satisfied, thankful, praising\n- neutral: customer calmly describes an issue, no emotions\n- negative: customer is angry, disappointed, uses exclamation marks, threatens\n\nClassify each ticket and return ALL results. Include the product_category field in each result."
+      "content": "You are an expert in classifying customer support tickets for an e-commerce store.\n\nFor each ticket provided, determine:\n\n1. Priority — one of: low, medium, high, critical\n2. Customer sentiment — one of: positive, neutral, negative\n3. Confidence — \"high\" if you are very confident in your classification, \"low\" if the ticket is ambiguous\n\nPriority definitions:\n\n- critical: customer threatens legal action, dangerous product, suspected account breach, fraud\n- high: large amount (>1000 PLN), urgent deadline, strong emotional language (scandal, drama, immediately)\n- medium: standard complaint or issue requiring action\n- low: informational question, praise, non-urgent request\n\nSentiment definitions:\n\n- positive: customer is satisfied, thankful, praising\n- neutral: customer calmly describes an issue, no strong emotions\n- negative: customer is angry, disappointed, uses exclamation marks, threatens\n\nConfidence guidelines — mark \"low\" when:\n\n- Priority could be two adjacent levels (e.g. medium vs high)\n- Sentiment is mixed (e.g. frustrated but polite)\n- The ticket text is vague or very short\n\n## Examples\n\nTicket: \"Thank you for the fast delivery! The headphones work perfectly.\"\n→ priority: low, sentiment: positive, confidence: high\n\nTicket: \"I ordered a laptop 3 weeks ago and still haven't received it. Can you check?\"\n→ priority: medium, sentiment: neutral, confidence: high\n\nTicket: \"SCANDAL! You charged me 5000 PLN twice! Return my money NOW or I'm calling my lawyer!\"\n→ priority: critical, sentiment: negative, confidence: high\n\nTicket: \"The package arrived a bit late but the product seems fine. Minor scratch on the corner though.\"\n→ priority: medium, sentiment: neutral, confidence: low\n(Reason: could be \"low\" priority since product works, sentiment borderline neutral/negative)\n\nTicket: \"I want to cancel my subscription. Where is the button?\"\n→ priority: low, sentiment: neutral, confidence: high\n\nTicket: \"The device started smoking after 10 minutes of use! This is dangerous, my child was nearby!\"\n→ priority: critical, sentiment: negative, confidence: high\n\nTicket: \"Hi, do you ship to Germany? I couldn't find this info on your website.\"\n→ priority: low, sentiment: neutral, confidence: high\n\nTicket: \"I'm quite disappointed. The quality is below what I expected for 800 PLN. Considering a return.\"\n→ priority: medium, sentiment: negative, confidence: low\n(Reason: could be \"high\" due to amount and potential return, sentiment clearly negative but language is mild)\n\n## Output format\n\nReturn a JSON array of objects, each with fields:\n\n- ticket_id: the ticket identifier\n- product_category: the product category\n- priority: one of the above priorities\n- sentiment: one of the above sentiments\n"
     },
     {
       "role": "user",
-      "content": "Here are 19 customer support tickets. Classify each one.\n\n[\n  {\n    \"ticket_id\": \"T-1002\",\n    \"subject\": \"ACCOUNT BLOCKED - MONEY CHARGED!!!\",\n    \"description\": \"SCANDAL! You charged me 4000 PLN TWICE and there is NO order in the system! I am contacting my LAWYER TODAY and filing a report with the POLICE! Refund the money IMMEDIATELY or we will meet in court! This is FRAUD!\"\n  },\n  {\n    \"ticket_id\": \"T-1010\",\n    \"subject\": \"Smartwatch does not connect to phone\",\n    \"description\": \"The smartwatch I bought cannot pair with my phone via Bluetooth. The app does not detect it at all. I tried resetting both devices many times without success. Please advise how to solve the problem or start the warranty procedure.\"\n  },\n  {\n    \"ticket_id\": \"T-1015\",\n    \"subject\": \"Broken headphones - I want a refund NOW\",\n    \"description\": \"These 1500 PLN headphones are DEFECTIVE! There is constant noise in the left earbud that makes them completely useless! I am extremely disappointed and DEMAND an immediate full refund! Do not offer me any repair - I want my money TODAY!\"\n  },\n  {\n    \"ticket_id\": \"T-1021\",\n    \"subject\": \"Missing VAT invoice for headset\",\n    \"description\": \"The VAT invoice was not included with my gaming headset order. I need this document for my company accounting purposes only — the product itself works fine and I am satisfied with it. I provided the tax ID when ordering. Please send the invoice to my email whenever convenient there is no urgency.\"\n  },\n  {\n    \"ticket_id\": \"T-1033\",\n    \"subject\": \"Camera order cancellation - FURIOUS\",\n    \"description\": \"I am FURIOUS! You canceled my 6000 PLN camera order without warning! I have already signed a bank loan agreement for this purchase! This is absolutely UNACCEPTABLE! I demand that you find this camera from another supplier immediately. I have never been this angry at any store!\"\n  },\n  {\n    \"ticket_id\": \"T-1038\",\n    \"subject\": \"Double charge - I am calling a lawyer\",\n    \"description\": \"You blocked 2500 PLN on my credit card TWICE! This is theft! I am filing a complaint with UOKiK TODAY and my lawyer is preparing a lawsuit. Give me my money back IMMEDIATELY or see you in court!\"\n  },\n  {\n    \"ticket_id\": \"T-1042\",\n    \"subject\": \"DANGEROUS PHONE - burns skin!\",\n    \"description\": \"The phone you sold me started overheating DANGEROUSLY while charging at night! It burned my hand and scorched the tabletop! This device is a FIRE HAZARD and a DANGER to my family! I am reporting this to the product safety inspection authority and demand an immediate recall!\"\n  },\n  {\n    \"ticket_id\": \"T-1056\",\n    \"subject\": \"Speaker BROKEN from day one!\",\n    \"description\": \"The speaker crackles and whistles horribly at volumes above 50%! For 1200 PLN I expected premium quality, not this GARBAGE! I am deeply frustrated and disappointed! Process my return form IMMEDIATELY or I will leave negative reviews everywhere!\"\n  },\n  {\n    \"ticket_id\": \"T-1064\",\n    \"subject\": \"Missing accessories worth 800 PLN!\",\n    \"description\": \"My 3500 PLN camera order arrived WITHOUT the helmet mount and spare battery that I paid for! That is 800 PLN worth of missing items! I am very upset - either send my accessories by express delivery TODAY or refund the full amount! This is completely unacceptable!\"\n  },\n  {\n    \"ticket_id\": \"T-1070\",\n    \"subject\": \"Request to change delivery — no rush\",\n    \"description\": \"Good morning, I would also like to ask whether I can change the drone delivery from courier to personal pickup at your showroom in Warsaw. The package has not been shipped yet. If possible, that would be more convenient, but if not, courier delivery is also fine. No rush, please reply when you have time.\"\n  },\n  {\n    \"ticket_id\": \"T-1072\",\n    \"subject\": \"Thank you for excellent service!\",\n    \"description\": \"I just wanted to say THANK YOU! The Logitech mouse arrived perfectly packed, works great, and your customer service helped me choose the right model. The best shopping experience I have ever had. I will definitely recommend your store to all my friends!\"\n  },\n  {\n    \"ticket_id\": \"T-1073\",\n    \"subject\": \"URGENT: I received the wrong item - expensive equipment did not arrive!\",\n    \"description\": \"I ordered a DJI Mini 5 drone (value ~2500 zloty), but I received a phone case. This is clearly a serious warehouse mistake. The order is already delayed, and I need the correct item shipped within 24 hours or an immediate refund. The case requires urgent review by customer service.\"\n  },\n  {\n    \"ticket_id\": \"T-1074\",\n    \"subject\": \"Cancellation of accidental order\",\n    \"description\": \"I accidentally placed an order for an iPad 5 minutes ago. The status still shows processing. Could you please cancel it? I do not need this product. Thank you for your help.\"\n  },\n  {\n    \"ticket_id\": \"T-1081\",\n    \"subject\": \"TV setup problems\",\n    \"description\": \"I cannot connect my LG TV to the WiFi network. I followed the instructions, but the TV keeps showing a connection error. The remote also sometimes does not respond. Could you provide troubleshooting steps?\"\n  },\n  {\n    \"ticket_id\": \"T-1103\",\n    \"subject\": \"FRAUD - counterfeit product sold!\",\n    \"description\": \"I am CERTAIN that you sold me a COUNTERFEIT camera! The serial number does not match the official Canon database! This is FRAUD and I am reporting you to the police and to UOKiK! I demand a 5000 PLN refund IMMEDIATELY or my lawyer will contact you within 24 hours!\"\n  },\n  {\n    \"ticket_id\": \"T-1113\",\n    \"subject\": \"Question about wholesale pricing\",\n    \"description\": \"Good morning, I am interested in ordering 20 LG OLED TVs for our hotel chain. Could you provide information about wholesale prices and delivery time for such a large order? Thank you in advance.\"\n  },\n  {\n    \"ticket_id\": \"T-1153\",\n    \"subject\": \"Camera warranty claim\",\n    \"description\": \"The shutter on my Canon camera stopped working after 3 months of normal use. The camera is still under warranty. I would like to send it in for repair. Please provide the warranty service address and shipping instructions.\"\n  },\n  {\n    \"ticket_id\": \"T-1155\",\n    \"subject\": \"Order delayed by 5 days\",\n    \"description\": \"My camera order was supposed to arrive last Friday, but the tracking has shown no movement since Tuesday. I am worried about the delivery. Could you check with the courier what happened and provide an updated delivery date?\"\n  },\n  {\n    \"ticket_id\": \"T-1193\",\n    \"subject\": \"Request to cancel MacBook order\",\n    \"description\": \"I realized that I ordered the wrong MacBook configuration. I need 16GB RAM, not 8GB. The order is still in processing status. Could you cancel it so I can place a new one with the correct specifications? No rush, whenever convenient. Thanks!\"\n  }\n]"
+      "content": "Here are 19 customer support tickets. Classify each one.\n\n[\n  {\n    \"ticket_id\": \"T-1002\",\n    \"customer_name\": \"Anna Nowak\",\n    \"customer_email\": \"anna@example.com\",\n    \"customer_phone\": \"+48987654321\",\n    \"product_name\": \"Samsung X TV\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-992\",\n    \"order_date\": \"2026-05-24\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"ACCOUNT BLOCKED - MONEY CHARGED!!!\",\n    \"description\": \"SCANDAL! You charged me 4000 PLN TWICE and there is NO order in the system! I am contacting my LAWYER TODAY and filing a report with the POLICE! Refund the money IMMEDIATELY or we will meet in court! This is FRAUD!\",\n    \"channel\": \"Form\",\n    \"status\": \"Open\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1010\",\n    \"customer_name\": \"Ewa Dąbrowska\",\n    \"customer_email\": \"ewa@example.com\",\n    \"customer_phone\": \"+48999444555\",\n    \"product_name\": \"SmartFit Watch\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1000\",\n    \"order_date\": \"2026-05-22\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"Smartwatch does not connect to phone\",\n    \"description\": \"The smartwatch I bought cannot pair with my phone via Bluetooth. The app does not detect it at all. I tried resetting both devices many times without success. Please advise how to solve the problem or start the warranty procedure.\",\n    \"channel\": \"Phone\",\n    \"status\": \"Open\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1015\",\n    \"customer_name\": \"Kamil Lewandowski\",\n    \"customer_email\": \"kamil@example.com\",\n    \"customer_phone\": \"+48777111333\",\n    \"product_name\": \"Wireless Headphones\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1005\",\n    \"order_date\": \"2026-05-19\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"Broken headphones - I want a refund NOW\",\n    \"description\": \"These 1500 PLN headphones are DEFECTIVE! There is constant noise in the left earbud that makes them completely useless! I am extremely disappointed and DEMAND an immediate full refund! Do not offer me any repair - I want my money TODAY!\",\n    \"channel\": \"Email\",\n    \"status\": \"Open\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1021\",\n    \"customer_name\": \"Krzysztof Krawczyk\",\n    \"customer_email\": \"krzysztof@example.com\",\n    \"customer_phone\": \"+48555222333\",\n    \"product_name\": \"Gaming Headset\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1011\",\n    \"order_date\": \"2026-05-10\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"Missing VAT invoice for headset\",\n    \"description\": \"The VAT invoice was not included with my gaming headset order. I need this document for my company accounting purposes only — the product itself works fine and I am satisfied with it. I provided the tax ID when ordering. Please send the invoice to my email whenever convenient there is no urgency.\",\n    \"channel\": \"Email\",\n    \"status\": \"Open\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1033\",\n    \"customer_name\": \"Jakub Krajewski\",\n    \"customer_email\": \"jakub@example.com\",\n    \"customer_phone\": \"+48333444999\",\n    \"product_name\": \"PRO Digital SLR Camera\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1023\",\n    \"order_date\": \"2026-05-23\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"Camera order cancellation - FURIOUS\",\n    \"description\": \"I am FURIOUS! You canceled my 6000 PLN camera order without warning! I have already signed a bank loan agreement for this purchase! This is absolutely UNACCEPTABLE! I demand that you find this camera from another supplier immediately. I have never been this angry at any store!\",\n    \"channel\": \"Phone\",\n    \"status\": \"Open\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1038\",\n    \"customer_name\": \"Grzegorz Rutkowski\",\n    \"customer_email\": \"grzes@example.com\",\n    \"customer_phone\": \"+48222111444\",\n    \"product_name\": \"Game Console\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1028\",\n    \"order_date\": \"2026-05-25\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"Double charge - I am calling a lawyer\",\n    \"description\": \"You blocked 2500 PLN on my credit card TWICE! This is theft! I am filing a complaint with UOKiK TODAY and my lawyer is preparing a lawsuit. Give me my money back IMMEDIATELY or see you in court!\",\n    \"channel\": \"Phone\",\n    \"status\": \"Open\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1042\",\n    \"customer_name\": \"Piotr Kaczor\",\n    \"customer_email\": \"piotr.k@example.com\",\n    \"customer_phone\": \"+48555444333\",\n    \"product_name\": \"XYZ Pro Smartphone\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1032\",\n    \"order_date\": \"2026-05-20\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"DANGEROUS PHONE - burns skin!\",\n    \"description\": \"The phone you sold me started overheating DANGEROUSLY while charging at night! It burned my hand and scorched the tabletop! This device is a FIRE HAZARD and a DANGER to my family! I am reporting this to the product safety inspection authority and demand an immediate recall!\",\n    \"channel\": \"Chat\",\n    \"status\": \"Open\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1056\",\n    \"customer_name\": \"Patryk Szewczyk\",\n    \"customer_email\": \"patryk@example.com\",\n    \"customer_phone\": \"+48777888111\",\n    \"product_name\": \"Bluetooth Speaker\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1046\",\n    \"order_date\": \"2026-05-18\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"Speaker BROKEN from day one!\",\n    \"description\": \"The speaker crackles and whistles horribly at volumes above 50%! For 1200 PLN I expected premium quality, not this GARBAGE! I am deeply frustrated and disappointed! Process my return form IMMEDIATELY or I will leave negative reviews everywhere!\",\n    \"channel\": \"Email\",\n    \"status\": \"Open\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1064\",\n    \"customer_name\": \"Grzegorz Czerwiński\",\n    \"customer_email\": \"grzesiek@example.com\",\n    \"customer_phone\": \"+48666222777\",\n    \"product_name\": \"Action Camera\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1054\",\n    \"order_date\": \"2026-05-20\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"Missing accessories worth 800 PLN!\",\n    \"description\": \"My 3500 PLN camera order arrived WITHOUT the helmet mount and spare battery that I paid for! That is 800 PLN worth of missing items! I am very upset - either send my accessories by express delivery TODAY or refund the full amount! This is completely unacceptable!\",\n    \"channel\": \"Chat\",\n    \"status\": \"Open\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1070\",\n    \"customer_name\": \"Paweł Sobczak\",\n    \"customer_email\": \"pawel.s@example.com\",\n    \"customer_phone\": \"+48666000111\",\n    \"product_name\": \"Recreational Drone\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1060\",\n    \"order_date\": \"2026-05-23\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"Request to change delivery — no rush\",\n    \"description\": \"Good morning, I would also like to ask whether I can change the drone delivery from courier to personal pickup at your showroom in Warsaw. The package has not been shipped yet. If possible, that would be more convenient, but if not, courier delivery is also fine. No rush, please reply when you have time.\",\n    \"channel\": \"Chat\",\n    \"status\": \"In Progress\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1072\",\n    \"customer_name\": \"Jan Grabowski\",\n    \"customer_email\": \"jan1@example.com\",\n    \"customer_phone\": \"+48828916818\",\n    \"product_name\": \"Logitech MX Master 4\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1062\",\n    \"order_date\": \"2026-05-14\",\n    \"ticket_date\": \"2026-05-23\",\n    \"subject\": \"Thank you for excellent service!\",\n    \"description\": \"I just wanted to say THANK YOU! The Logitech mouse arrived perfectly packed, works great, and your customer service helped me choose the right model. The best shopping experience I have ever had. I will definitely recommend your store to all my friends!\",\n    \"channel\": \"Phone\",\n    \"status\": \"Closed\",\n    \"country\": \"Lithuania\"\n  },\n  {\n    \"ticket_id\": \"T-1073\",\n    \"customer_name\": \"Piotr Krawczyk\",\n    \"customer_email\": \"piotr2@example.com\",\n    \"customer_phone\": \"+48248914073\",\n    \"product_name\": \"DJI Mini 5\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1063\",\n    \"order_date\": \"2026-05-13\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"URGENT: I received the wrong item - expensive equipment did not arrive!\",\n    \"description\": \"This is absolutely unacceptable and the worst shopping experience of my entire life! I paid ~2500 zloty for a DJI Mini 5 drone and you sent me a cheap phone case instead - a disgraceful, infuriating, insulting mistake. I am furious, deeply disappointed and feel completely scammed and robbed. Your warehouse is a total disaster, the order is already late, and nobody seems to care at all. I demand the correct item within 24 hours or an immediate full refund, otherwise I will take legal action and report you to consumer protection authorities for fraud. I will also dispute the charge, leave the worst possible reviews everywhere and never buy from you again. Pathetic, shameful service!\",\n    \"channel\": \"Phone\",\n    \"status\": \"Open\",\n    \"country\": \"Slovakia\"\n  },\n  {\n    \"ticket_id\": \"T-1074\",\n    \"customer_name\": \"Jan Jankowski\",\n    \"customer_email\": \"jan3@example.com\",\n    \"customer_phone\": \"+48794263560\",\n    \"product_name\": \"iPad Pro 13\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1064\",\n    \"order_date\": \"2026-05-11\",\n    \"ticket_date\": \"2026-05-22\",\n    \"subject\": \"Cancellation of accidental order\",\n    \"description\": \"I accidentally placed an order for an iPad 5 minutes ago. The status still shows processing. Could you please cancel it? I do not need this product. Thank you for your help.\",\n    \"channel\": \"Form\",\n    \"status\": \"Open\",\n    \"country\": \"Czechia\"\n  },\n  {\n    \"ticket_id\": \"T-1081\",\n    \"customer_name\": \"Magdalena Kozłowski\",\n    \"customer_email\": \"magdalena10@example.com\",\n    \"customer_phone\": \"+48837441730\",\n    \"product_name\": \"LG OLED TV 55\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1071\",\n    \"order_date\": \"2026-05-15\",\n    \"ticket_date\": \"2026-05-22\",\n    \"subject\": \"TV setup problems\",\n    \"description\": \"I cannot connect my LG TV to the WiFi network. I followed the instructions, but the TV keeps showing a connection error. The remote also sometimes does not respond. Could you provide troubleshooting steps?\",\n    \"channel\": \"Phone\",\n    \"status\": \"In Progress\",\n    \"country\": \"Slovakia\"\n  },\n  {\n    \"ticket_id\": \"T-1103\",\n    \"customer_name\": \"Ewa Lewandowski\",\n    \"customer_email\": \"ewa32@example.com\",\n    \"customer_phone\": \"+48661837031\",\n    \"product_name\": \"Canon EOS R50\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1093\",\n    \"order_date\": \"2026-05-03\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"FRAUD - counterfeit product sold!\",\n    \"description\": \"I am CERTAIN that you sold me a COUNTERFEIT camera! The serial number does not match the official Canon database! This is FRAUD and I am reporting you to the police and to UOKiK! I demand a 5000 PLN refund IMMEDIATELY or my lawyer will contact you within 24 hours!\",\n    \"channel\": \"Form\",\n    \"status\": \"Open\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1113\",\n    \"customer_name\": \"Katarzyna Kowalski\",\n    \"customer_email\": \"katarzyna42@example.com\",\n    \"customer_phone\": \"+48741228254\",\n    \"product_name\": \"LG OLED TV 55\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1103\",\n    \"order_date\": \"2026-05-19\",\n    \"ticket_date\": \"2026-05-25\",\n    \"subject\": \"Question about wholesale pricing\",\n    \"description\": \"Good morning, I am interested in ordering 20 LG OLED TVs for our hotel chain. Could you provide information about wholesale prices and delivery time for such a large order? Thank you in advance.\",\n    \"channel\": \"Form\",\n    \"status\": \"Closed\",\n    \"country\": \"Poland\"\n  },\n  {\n    \"ticket_id\": \"T-1153\",\n    \"customer_name\": \"Łukasz Pawłowski\",\n    \"customer_email\": \"lukasz82@example.com\",\n    \"customer_phone\": \"+48774609994\",\n    \"product_name\": \"Canon EOS R50\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1143\",\n    \"order_date\": \"2026-05-17\",\n    \"ticket_date\": \"2026-05-22\",\n    \"subject\": \"Camera warranty claim\",\n    \"description\": \"The shutter on my Canon camera stopped working after 3 months of normal use. The camera is still under warranty. I would like to send it in for repair. Please provide the warranty service address and shipping instructions.\",\n    \"channel\": \"Email\",\n    \"status\": \"Closed\",\n    \"country\": \"Lithuania\"\n  },\n  {\n    \"ticket_id\": \"T-1155\",\n    \"customer_name\": \"Natalia Pawłowski\",\n    \"customer_email\": \"natalia84@example.com\",\n    \"customer_phone\": \"+48484027132\",\n    \"product_name\": \"Canon EOS R50\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1145\",\n    \"order_date\": \"2026-05-18\",\n    \"ticket_date\": \"2026-05-24\",\n    \"subject\": \"Order delayed by 5 days\",\n    \"description\": \"My camera order was supposed to arrive last Friday, but the tracking has shown no movement since Tuesday. I am worried about the delivery. Could you check with the courier what happened and provide an updated delivery date?\",\n    \"channel\": \"Phone\",\n    \"status\": \"In Progress\",\n    \"country\": \"Lithuania\"\n  },\n  {\n    \"ticket_id\": \"T-1193\",\n    \"customer_name\": \"Anna Nowak\",\n    \"customer_email\": \"anna122@example.com\",\n    \"customer_phone\": \"+48445591841\",\n    \"product_name\": \"Apple MacBook Air M4\",\n    \"product_category\": \"Electronics\",\n    \"order_id\": \"ORD-1183\",\n    \"order_date\": \"2026-05-01\",\n    \"ticket_date\": \"2026-05-24\",\n    \"subject\": \"Request to cancel MacBook order\",\n    \"description\": \"I realized that I ordered the wrong MacBook configuration. I need 16GB RAM, not 8GB. The order is still in processing status. Could you cancel it so I can place a new one with the correct specifications? No rush, whenever convenient. Thanks!\",\n    \"channel\": \"Email\",\n    \"status\": \"Open\",\n    \"country\": \"Czechia\"\n  }\n]"
     },
     {
       "role": "assistant",
-      "content": "{\"tickets\":[{\"ticket_id\":\"T-1002\",\"product_category\":\"billing\",\"priority\":\"critical\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1010\",\"product_category\":\"smartwatch\",\"priority\":\"medium\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1015\",\"product_category\":\"headphones\",\"priority\":\"high\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1021\",\"product_category\":\"headset\",\"priority\":\"low\",\"sentiment\":\"positive\"},{\"ticket_id\":\"T-1033\",\"product_category\":\"camera\",\"priority\":\"high\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1038\",\"product_category\":\"billing\",\"priority\":\"critical\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1042\",\"product_category\":\"phone\",\"priority\":\"critical\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1056\",\"product_category\":\"speaker\",\"priority\":\"high\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1064\",\"product_category\":\"camera accessories\",\"priority\":\"high\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1070\",\"product_category\":\"drone\",\"priority\":\"low\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1072\",\"product_category\":\"mouse\",\"priority\":\"low\",\"sentiment\":\"positive\"},{\"ticket_id\":\"T-1073\",\"product_category\":\"drone\",\"priority\":\"high\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1074\",\"product_category\":\"tablet\",\"priority\":\"low\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1081\",\"product_category\":\"TV\",\"priority\":\"medium\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1103\",\"product_category\":\"camera\",\"priority\":\"critical\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1113\",\"product_category\":\"TV\",\"priority\":\"low\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1153\",\"product_category\":\"camera\",\"priority\":\"medium\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1155\",\"product_category\":\"camera\",\"priority\":\"medium\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1193\",\"product_category\":\"laptop\",\"priority\":\"low\",\"sentiment\":\"neutral\"}]}"
+      "content": "{\"tickets\":[{\"confidence\":\"high\",\"priority\":\"critical\",\"product_category\":\"Electronics\",\"sentiment\":\"negative\",\"ticket_id\":\"T-1002\"},{\"confidence\":\"high\",\"priority\":\"medium\",\"product_category\":\"Electronics\",\"sentiment\":\"neutral\",\"ticket_id\":\"T-1010\"},{\"confidence\":\"high\",\"priority\":\"high\",\"product_category\":\"Electronics\",\"sentiment\":\"negative\",\"ticket_id\":\"T-1015\"},{\"confidence\":\"high\",\"priority\":\"low\",\"product_category\":\"Electronics\",\"sentiment\":\"positive\",\"ticket_id\":\"T-1021\"},{\"confidence\":\"high\",\"priority\":\"high\",\"product_category\":\"Electronics\",\"sentiment\":\"negative\",\"ticket_id\":\"T-1033\"},{\"confidence\":\"high\",\"priority\":\"critical\",\"product_category\":\"Electronics\",\"sentiment\":\"negative\",\"ticket_id\":\"T-1038\"},{\"confidence\":\"high\",\"priority\":\"critical\",\"product_category\":\"Electronics\",\"sentiment\":\"negative\",\"ticket_id\":\"T-1042\"},{\"confidence\":\"high\",\"priority\":\"high\",\"product_category\":\"Electronics\",\"sentiment\":\"negative\",\"ticket_id\":\"T-1056\"},{\"confidence\":\"high\",\"priority\":\"high\",\"product_category\":\"Electronics\",\"sentiment\":\"negative\",\"ticket_id\":\"T-1064\"},{\"confidence\":\"high\",\"priority\":\"low\",\"product_category\":\"Electronics\",\"sentiment\":\"neutral\",\"ticket_id\":\"T-1070\"},{\"confidence\":\"high\",\"priority\":\"low\",\"product_category\":\"Electronics\",\"sentiment\":\"positive\",\"ticket_id\":\"T-1072\"},{\"confidence\":\"high\",\"priority\":\"critical\",\"product_category\":\"Electronics\",\"sentiment\":\"negative\",\"ticket_id\":\"T-1073\"},{\"confidence\":\"high\",\"priority\":\"low\",\"product_category\":\"Electronics\",\"sentiment\":\"neutral\",\"ticket_id\":\"T-1074\"},{\"confidence\":\"high\",\"priority\":\"medium\",\"product_category\":\"Electronics\",\"sentiment\":\"neutral\",\"ticket_id\":\"T-1081\"},{\"confidence\":\"high\",\"priority\":\"critical\",\"product_category\":\"Electronics\",\"sentiment\":\"negative\",\"ticket_id\":\"T-1103\"},{\"confidence\":\"high\",\"priority\":\"low\",\"product_category\":\"Electronics\",\"sentiment\":\"neutral\",\"ticket_id\":\"T-1113\"},{\"confidence\":\"high\",\"priority\":\"medium\",\"product_category\":\"Electronics\",\"sentiment\":\"neutral\",\"ticket_id\":\"T-1153\"},{\"confidence\":\"high\",\"priority\":\"medium\",\"product_category\":\"Electronics\",\"sentiment\":\"neutral\",\"ticket_id\":\"T-1155\"},{\"confidence\":\"high\",\"priority\":\"low\",\"product_category\":\"Electronics\",\"sentiment\":\"neutral\",\"ticket_id\":\"T-1193\"}]}"
     }
   ],
   "usage": {
-    "prompt_tokens": 1891,
-    "completion_tokens": 2556,
-    "total_tokens": 4447,
+    "prompt_tokens": 4589,
+    "completion_tokens": 1000,
+    "total_tokens": 5589,
     "prompt_tokens_details": {
-      "cached_tokens": 0,
+      "cached_tokens": 2816,
       "audio_tokens": 0
     },
     "completion_tokens_details": {
-      "reasoning_tokens": 2112,
+      "reasoning_tokens": 468,
       "audio_tokens": 0,
       "accepted_prediction_tokens": 0,
       "rejected_prediction_tokens": 0
@@ -37,118 +37,137 @@
   },
   "result": [
     {
-      "ticket_id": "T-1002",
-      "product_category": "billing",
+      "confidence": "high",
       "priority": "critical",
-      "sentiment": "negative"
+      "product_category": "Electronics",
+      "sentiment": "negative",
+      "ticket_id": "T-1002"
     },
     {
-      "ticket_id": "T-1010",
-      "product_category": "smartwatch",
+      "confidence": "high",
       "priority": "medium",
-      "sentiment": "neutral"
+      "product_category": "Electronics",
+      "sentiment": "neutral",
+      "ticket_id": "T-1010"
     },
     {
-      "ticket_id": "T-1015",
-      "product_category": "headphones",
+      "confidence": "high",
       "priority": "high",
-      "sentiment": "negative"
+      "product_category": "Electronics",
+      "sentiment": "negative",
+      "ticket_id": "T-1015"
     },
     {
-      "ticket_id": "T-1021",
-      "product_category": "headset",
+      "confidence": "high",
       "priority": "low",
-      "sentiment": "positive"
+      "product_category": "Electronics",
+      "sentiment": "positive",
+      "ticket_id": "T-1021"
     },
     {
-      "ticket_id": "T-1033",
-      "product_category": "camera",
+      "confidence": "high",
       "priority": "high",
-      "sentiment": "negative"
+      "product_category": "Electronics",
+      "sentiment": "negative",
+      "ticket_id": "T-1033"
     },
     {
-      "ticket_id": "T-1038",
-      "product_category": "billing",
+      "confidence": "high",
       "priority": "critical",
-      "sentiment": "negative"
+      "product_category": "Electronics",
+      "sentiment": "negative",
+      "ticket_id": "T-1038"
     },
     {
-      "ticket_id": "T-1042",
-      "product_category": "phone",
+      "confidence": "high",
       "priority": "critical",
-      "sentiment": "negative"
+      "product_category": "Electronics",
+      "sentiment": "negative",
+      "ticket_id": "T-1042"
     },
     {
-      "ticket_id": "T-1056",
-      "product_category": "speaker",
+      "confidence": "high",
       "priority": "high",
-      "sentiment": "negative"
+      "product_category": "Electronics",
+      "sentiment": "negative",
+      "ticket_id": "T-1056"
     },
     {
-      "ticket_id": "T-1064",
-      "product_category": "camera accessories",
+      "confidence": "high",
       "priority": "high",
-      "sentiment": "negative"
+      "product_category": "Electronics",
+      "sentiment": "negative",
+      "ticket_id": "T-1064"
     },
     {
-      "ticket_id": "T-1070",
-      "product_category": "drone",
+      "confidence": "high",
       "priority": "low",
-      "sentiment": "neutral"
+      "product_category": "Electronics",
+      "sentiment": "neutral",
+      "ticket_id": "T-1070"
     },
     {
-      "ticket_id": "T-1072",
-      "product_category": "mouse",
+      "confidence": "high",
       "priority": "low",
-      "sentiment": "positive"
+      "product_category": "Electronics",
+      "sentiment": "positive",
+      "ticket_id": "T-1072"
     },
     {
-      "ticket_id": "T-1073",
-      "product_category": "drone",
-      "priority": "high",
-      "sentiment": "negative"
-    },
-    {
-      "ticket_id": "T-1074",
-      "product_category": "tablet",
-      "priority": "low",
-      "sentiment": "neutral"
-    },
-    {
-      "ticket_id": "T-1081",
-      "product_category": "TV",
-      "priority": "medium",
-      "sentiment": "neutral"
-    },
-    {
-      "ticket_id": "T-1103",
-      "product_category": "camera",
+      "confidence": "high",
       "priority": "critical",
-      "sentiment": "negative"
+      "product_category": "Electronics",
+      "sentiment": "negative",
+      "ticket_id": "T-1073"
     },
     {
-      "ticket_id": "T-1113",
-      "product_category": "TV",
+      "confidence": "high",
       "priority": "low",
-      "sentiment": "neutral"
+      "product_category": "Electronics",
+      "sentiment": "neutral",
+      "ticket_id": "T-1074"
     },
     {
-      "ticket_id": "T-1153",
-      "product_category": "camera",
+      "confidence": "high",
       "priority": "medium",
-      "sentiment": "neutral"
+      "product_category": "Electronics",
+      "sentiment": "neutral",
+      "ticket_id": "T-1081"
     },
     {
-      "ticket_id": "T-1155",
-      "product_category": "camera",
-      "priority": "medium",
-      "sentiment": "neutral"
+      "confidence": "high",
+      "priority": "critical",
+      "product_category": "Electronics",
+      "sentiment": "negative",
+      "ticket_id": "T-1103"
     },
     {
-      "ticket_id": "T-1193",
-      "product_category": "laptop",
+      "confidence": "high",
       "priority": "low",
-      "sentiment": "neutral"
+      "product_category": "Electronics",
+      "sentiment": "neutral",
+      "ticket_id": "T-1113"
+    },
+    {
+      "confidence": "high",
+      "priority": "medium",
+      "product_category": "Electronics",
+      "sentiment": "neutral",
+      "ticket_id": "T-1153"
+    },
+    {
+      "confidence": "high",
+      "priority": "medium",
+      "product_category": "Electronics",
+      "sentiment": "neutral",
+      "ticket_id": "T-1155"
+    },
+    {
+      "confidence": "high",
+      "priority": "low",
+      "product_category": "Electronics",
+      "sentiment": "neutral",
+      "ticket_id": "T-1193"
     }
   ]
 }

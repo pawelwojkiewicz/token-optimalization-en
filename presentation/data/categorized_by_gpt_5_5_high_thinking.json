@@ -296,7 +296,7 @@
   {
     "ticket_id": "T-1073",
     "product_category": "Elektronika",
-    "priority": "high",
+    "priority": "critical",
     "sentiment": "negative",
     "confidence": "low"
   },

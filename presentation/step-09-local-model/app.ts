@@ -11,10 +11,10 @@
  * - Obcinanie opisów (step-08)
  *
  * Nowa optymalizacja:
- * - Zastąpienie taniego płatnego modelu (gpt-4.1-mini) lokalnym modelem przez LM Studio
+ * - Zastąpienie taniego płatnego modelu (gpt-4o-mini) lokalnym modelem przez LM Studio
  * - Lokalny model jest DARMOWY — faza 1 nie kosztuje nic
  * - Trade-off: wolniejsze przetwarzanie, model mniej precyzyjny
- * - Faza 2 nadal używa gpt-5 dla low-confidence ticketów
+ * - Faza 2 nadal używa gpt-5.5 dla low-confidence ticketów
  *
  * Uwaga: wymaga uruchomionego LM Studio z modelem google/gemma-4-e4b
  * pod adresem http://localhost:1234/v1
@@ -35,7 +35,7 @@ import {
 } from "../shared/helpers.js";
 import { TICKET_CLASSIFICATION_SCHEMA } from "../shared/schemas.js";
 
-// Klient do gpt-5 (fallback dla low confidence)
+// Klient do gpt-5.5 (fallback dla low confidence)
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Klient do lokalnego modelu przez LM Studio
@@ -45,13 +45,16 @@ const localClient = new OpenAI({
 });
 
 const LOCAL_MODEL = "google/gemma-4-e4b";
-const EXPENSIVE_MODEL = "gpt-5";
+const EXPENSIVE_MODEL = "gpt-5.5";
 
 async function main() {
   const previousStats = await loadStatsBefore(9);
 
   // 1. Wczytaj CSV + JS filtrowanie + trim kolumn
-  const csvPath = path.resolve(process.cwd(), "presentation/data/e-commerce-tickets-en.csv");
+  const csvPath = path.resolve(
+    process.cwd(),
+    "presentation/data/e-commerce-tickets-en.csv",
+  );
   const csvContent = await readFile(csvPath, "utf8");
 
   const allRecords = parse(csvContent, {

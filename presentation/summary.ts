@@ -68,17 +68,17 @@ async function main() {
   const steps = [
     {
       path: "presentation/step-01-no-optimization/output/stats.md",
-      name: "Step 01 — PL, brak opt., gpt-5",
+      name: "Step 01 — PL, brak opt., gpt-5.5",
       short: "01 PL brak opt.",
     },
     {
       path: "presentation/step-02-english/output/stats.md",
-      name: "Step 02 — EN prompt, gpt-5",
+      name: "Step 02 — EN prompt, gpt-5.5",
       short: "02 EN prompt",
     },
     {
       path: "presentation/step-03-js-filtering/output/stats.md",
-      name: "Step 03 — JS filter wierszy",
+      name: "Step 03 — JS filter wierszy, gpt-5.5",
       short: "03 JS filter",
     },
     {
@@ -246,7 +246,7 @@ async function main() {
   console.log(" PORÓWNANIE LOKALNYCH MODELI (step-09)");
   console.log(LINE);
   const localModels = [
-    { name: "gpt-4.1-mini (referencja)", diffs: "0", time: "~7s", acc: "100%" },
+    { name: "gpt-4o-mini (referencja)", diffs: "0", time: "~7s", acc: "100%" },
     {
       name: "meta-llama-3.1-8b-instruct",
       diffs: "3x",
@@ -325,23 +325,43 @@ ${mdRows}
 ${data[0].elapsedS > 0 && last2.elapsedS > 0 ? `| Czas | ${data[0].elapsedS}s | ${last2.elapsedS}s | **${timeSav2.toFixed(1)}s (${timePct2}%)** |` : ""}
 `;
 
+  const scaleTotal = 14000;
+  const scaleAfter = (last2.costUSD / baseline.costUSD) * scaleTotal;
+  const scaleSav = scaleTotal - scaleAfter;
+  const scaleFmt = (n: number) =>
+    "\\$" + Math.round(n).toLocaleString("en-US").replace(/,/g, " ");
+
+  const scalabilitySection = `
+## Skalowalność — realny scenariusz
+
+> Firma wydała **${scaleFmt(scaleTotal)}** na klasyfikację ticketów. Mogła wydać **~${scaleFmt(scaleAfter)}**.
+
+Proporcja oszczędności z tej prezentacji (\`$${baseline.costUSD.toFixed(4)} → $${last2.costUSD.toFixed(4)}\`, czyli **${cPct}%**) przełożona na skalę ${scaleFmt(scaleTotal)}:
+
+| Scenariusz | Koszt |
+|------------|-------|
+| Bez optymalizacji (baseline) | **${scaleFmt(scaleTotal)}** |
+| Po optymalizacjach | **~${scaleFmt(scaleAfter)}** |
+| **Oszczędność** | **~${scaleFmt(scaleSav)} (${cPct}%)** |
+`;
+
   const localModelsTable = `
 ## Porównanie lokalnych modeli (step-09)
 
 | Model | Odpalenia | Avg zgodność | Czas | Uwagi |
 |-------|-----------|-------------|------|-------|
-| gpt-4.1-mini (referencja) | — | 100% | ~7s | punkt odniesienia |
+| gpt-4o-mini (referencja) | — | 100% | ~7s | punkt odniesienia |
 | meta-llama-3.1-8b-instruct | 3× | **63.0%** | ~20s | 68% / 68% / 53% |
 | qwen2.5-7b-instruct | 3× | **61.3%** | ~30s | 68% / 53% / 63% |
 | google/gemma-4-e4b | 2× | **52.5%** | ~40s | 47% / 58% |
 
 > ⚠️ Wszystkie trzy lokalne modele wykazały **bardzo niską zgodność** z referencją — poniżej 65% średnio.
-> Najlepszy wynik: meta-llama-3.1-8b-instruct (avg 63%), ale nadal o 37 punktów procentowych gorszy od gpt-4.1-mini.
+> Najlepszy wynik: meta-llama-3.1-8b-instruct (avg 63%), ale nadal o 37 punktów procentowych gorszy od gpt-4o-mini.
 > Wysoka zmienność między odpaleniami (różnice do 15 pp) sugeruje brak stabilności klasyfikacji lokalnych modeli.
 > 💡 Testowane modele to modele 7–8B parametrów. Modele z większą liczbą parametrów (np. 32B, 70B) mogłyby osiągnąć znacznie lepszą zgodność — kosztem wyższych wymagań sprzętowych i dłuższego czasu inferencji.
 `;
 
-  const mdFull = md + localModelsTable;
+  const mdFull = md + scalabilitySection + localModelsTable;
   const outPath = path.resolve(process.cwd(), "presentation/SUMMARY.md");
   await writeFile(outPath, mdFull, "utf8");
   console.log(`Markdown zapisany: presentation/SUMMARY.md\n`);

@@ -46,7 +46,7 @@ async function main() {
   );
   const systemPrompt = `${basePrompt}
 
-IMPORTANT: Return ONLY tickets where the product_category column is "Electronics".
+IMPORTANT: Return ONLY tickets for products from the "Electronics" category (product_category column).
 Filter out all other product categories.`;
 
   // 3. Wiadomość użytkownika — cały CSV bez żadnej obróbki

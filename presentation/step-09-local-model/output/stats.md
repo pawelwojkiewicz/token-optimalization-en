@@ -3,7 +3,7 @@
 ## Parametry
 
 - **Lokalny model (faza 1):** google/gemma-4-e4b @ LM Studio (koszt: $0)
-- **Drogi model (fallback):** gpt-5
+- **Drogi model (fallback):** gpt-5.5
 - **Język promptu:** Angielski (skompresowany)
 - **Optymalizacje:** JS filter + EN + Model Routing + Trim kolumn + Kompresja promptu + Pipe format + Truncation + Lokalny model
 - **Ticketów Electronics:** 19
@@ -27,7 +27,7 @@
 | Faza     | Model                        | Prompt | Completion | Total     | Koszt       |
 | -------- | ---------------------------- | ------ | ---------- | --------- | ----------- |
 | Faza 1   | google/gemma-4-e4b (lokalny) | 3,749  | 1,810      | 5,559     | $0.0000     |
-| Faza 2   | gpt-5                        | 0      | 0          | 0         | $0.0000     |
+| Faza 2   | gpt-5.5                      | 0      | 0          | 0         | $0.0000     |
 | **SUMA** | —                            | 3,749  | 1,810      | **5,559** | **$0.0000** |
 
 ## Porównanie z poprzednimi krokami

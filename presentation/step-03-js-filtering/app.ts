@@ -31,7 +31,7 @@ import { TICKET_CLASSIFICATION_SCHEMA } from "../shared/schemas.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const MODEL = "gpt-5";
+const MODEL = "gpt-5.5";
 
 async function main() {
   const previousStats = await loadStatsBefore(3);

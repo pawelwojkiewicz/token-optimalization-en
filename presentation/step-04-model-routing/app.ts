@@ -7,10 +7,10 @@
  *
  * Nowa optymalizacja:
  * - Tani model (gpt-4o-mini) klasyfikuje WSZYSTKIE tickety + zwraca confidence
- * - Tylko tickety z confidence="medium" lub "low" trafiają do drogiego modelu (gpt-5)
+ * - Tylko tickety z confidence="medium" lub "low" trafiają do drogiego modelu (gpt-5.5)
  * - Reszta (confidence="high") zostaje z wynikami taniego modelu
  *
- * Efekt: Większość ticketów kosztuje ~25x mniej (gpt-4o-mini vs gpt-5)
+ * Efekt: Większość ticketów kosztuje ~25x mniej (gpt-4o-mini vs gpt-5.5)
  */
 
 import OpenAI from "openai";
@@ -31,7 +31,7 @@ const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 //✅ 1. Parametry modeli
 const CHEAP_MODEL = "gpt-4o-mini";
-const EXPENSIVE_MODEL = "gpt-5";
+const EXPENSIVE_MODEL = "gpt-5.5";
 const PHASE1_BATCH_SIZE = Number(process.env.LOCAL_CHEAP_BATCH_SIZE ?? "3");
 
 async function main() {

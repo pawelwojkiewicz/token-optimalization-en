@@ -1,19 +1,19 @@
 {
-  "timestamp": "2026-06-03T15:59:38.164Z",
-  "optimization": "Prompt compression: system prompt skrócony z ~700 do ~200 tokenów",
+  "timestamp": "2026-06-10T12:07:36.142Z",
+  "optimization": "Prompt compression: system prompt skrócony z 2718 do 1055 znaków (61% mniej)",
   "routing": {
-    "cheapModel": "gpt-4.1-mini",
-    "expensiveModel": "gpt-5",
+    "cheapModel": "gpt-4o-mini",
+    "expensiveModel": "gpt-5.5",
     "totalTickets": 19,
     "highConfidence": 19,
     "lowConfidence": 0
   },
   "phase1": {
-    "model": "gpt-4.1-mini",
+    "model": "gpt-4o-mini",
     "usage": {
-      "prompt_tokens": 1999,
-      "completion_tokens": 505,
-      "total_tokens": 2504,
+      "prompt_tokens": 2075,
+      "completion_tokens": 499,
+      "total_tokens": 2574,
       "prompt_tokens_details": {
         "cached_tokens": 0,
         "audio_tokens": 0
@@ -25,10 +25,10 @@
         "rejected_prediction_tokens": 0
       }
     },
-    "cost": 0.0016076
+    "cost": 0.0006106499999999999
   },
   "phase2": {
-    "model": "gpt-5",
+    "model": "gpt-5.5",
     "usage": {
       "prompt_tokens": 0,
       "completion_tokens": 0,
@@ -38,144 +38,163 @@
     "ticketsReclassified": 0
   },
   "totalUsage": {
-    "promptTokens": 1999,
-    "completionTokens": 505,
-    "totalTokens": 2504,
-    "totalCost": 0.0016076
+    "promptTokens": 2075,
+    "completionTokens": 499,
+    "totalTokens": 2574,
+    "totalCost": 0.0006106499999999999
   },
   "result": [
     {
       "ticket_id": "T-1002",
-      "product_category": "account",
+      "product_category": "finance",
       "priority": "critical",
       "sentiment": "negative",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1010",
-      "product_category": "smartwatch",
+      "product_category": "electronics",
       "priority": "medium",
       "sentiment": "neutral",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1015",
-      "product_category": "headphones",
+      "product_category": "electronics",
       "priority": "high",
       "sentiment": "negative",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1021",
-      "product_category": "headset",
+      "product_category": "electronics",
       "priority": "low",
       "sentiment": "positive",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1033",
-      "product_category": "camera",
+      "product_category": "electronics",
       "priority": "high",
       "sentiment": "negative",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1038",
-      "product_category": "account",
+      "product_category": "finance",
       "priority": "critical",
       "sentiment": "negative",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1042",
-      "product_category": "phone",
+      "product_category": "electronics",
       "priority": "critical",
       "sentiment": "negative",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1056",
-      "product_category": "speaker",
+      "product_category": "electronics",
       "priority": "high",
       "sentiment": "negative",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1064",
-      "product_category": "camera",
+      "product_category": "electronics",
       "priority": "high",
       "sentiment": "negative",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1070",
-      "product_category": "drone",
+      "product_category": "delivery",
       "priority": "low",
       "sentiment": "neutral",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1072",
-      "product_category": "mouse",
+      "product_category": "service",
       "priority": "low",
       "sentiment": "positive",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1073",
-      "product_category": "drone",
-      "priority": "high",
+      "product_category": "electronics",
+      "priority": "critical",
       "sentiment": "negative",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1074",
-      "product_category": "tablet",
+      "product_category": "electronics",
       "priority": "low",
       "sentiment": "neutral",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1081",
-      "product_category": "TV",
+      "product_category": "electronics",
       "priority": "medium",
       "sentiment": "neutral",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1103",
-      "product_category": "camera",
+      "product_category": "electronics",
       "priority": "critical",
       "sentiment": "negative",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1113",
-      "product_category": "TV",
+      "product_category": "service",
       "priority": "low",
       "sentiment": "neutral",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1153",
-      "product_category": "camera",
+      "product_category": "electronics",
       "priority": "medium",
       "sentiment": "neutral",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1155",
-      "product_category": "camera",
+      "product_category": "delivery",
       "priority": "medium",
       "sentiment": "neutral",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1193",
-      "product_category": "laptop",
+      "product_category": "delivery",
       "priority": "low",
       "sentiment": "neutral",
-      "model": "gpt-4.1-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     }
   ]
 }

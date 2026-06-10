@@ -34,6 +34,10 @@ async function main() {
     path.resolve(process.cwd(), "presentation/prompts/system-prompt-pl.md"),
     "utf8",
   );
+  const systemPrompt = `${basePrompt}
+
+WAŻNE: Zwróć TYLKO zgłoszenia dotyczące produktów z kategorii "Elektronika" (kolumna product_category).
+Odfiltruj wszystkie inne kategorie produktów.`;
 
   // 3. Wiadomość użytkownika — cały CSV bez żadnej obróbki
   const userMessage = `Oto plik CSV ze zgłoszeniami klientów. Przeanalizuj KAŻDE zgłoszenie, sklasyfikuj je (priorytet + sentyment), a następnie zwróć TYLKO tickety z kategorią produktu "Elektronika".
@@ -47,7 +51,7 @@ ${csvContent}`;
     model: MODEL,
     response_format: TICKET_CLASSIFICATION_SCHEMA,
     messages: [
-      { role: "system", content: basePrompt },
+      { role: "system", content: systemPrompt },
       { role: "user", content: userMessage },
     ],
   });
@@ -72,7 +76,7 @@ ${csvContent}`;
         model: MODEL,
         timestamp: new Date().toISOString(),
         messages: [
-          { role: "system", content: basePrompt },
+          { role: "system", content: systemPrompt },
           { role: "user", content: userMessage },
           { role: "assistant", content: response.choices[0]?.message?.content },
         ],

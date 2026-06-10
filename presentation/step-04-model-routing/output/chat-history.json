@@ -1,48 +1,48 @@
 {
-  "timestamp": "2026-06-03T15:57:50.477Z",
+  "timestamp": "2026-06-10T12:01:40.265Z",
   "routing": {
     "cheapModel": "gpt-4o-mini",
-    "expensiveModel": "gpt-5",
+    "expensiveModel": "gpt-5.5",
     "totalTickets": 19,
-    "highConfidence": 18,
-    "lowConfidence": 1
+    "highConfidence": 17,
+    "lowConfidence": 2
   },
   "phase1": {
     "model": "gpt-4o-mini",
     "usage": {
-      "prompt_tokens": 9496,
+      "prompt_tokens": 9520,
       "completion_tokens": 548,
-      "total_tokens": 10044
+      "total_tokens": 10068
     },
-    "cost": 0.0017532,
-    "elapsed": "13.2"
+    "cost": 0.0017568,
+    "elapsed": "24.2"
   },
   "phase2": {
-    "model": "gpt-5",
+    "model": "gpt-5.5",
     "usage": {
-      "prompt_tokens": 472,
-      "completion_tokens": 298,
-      "total_tokens": 770,
+      "prompt_tokens": 1133,
+      "completion_tokens": 331,
+      "total_tokens": 1464,
       "prompt_tokens_details": {
         "cached_tokens": 0,
         "audio_tokens": 0
       },
       "completion_tokens_details": {
-        "reasoning_tokens": 256,
+        "reasoning_tokens": 258,
         "audio_tokens": 0,
         "accepted_prediction_tokens": 0,
         "rejected_prediction_tokens": 0
       }
     },
-    "cost": 0.01366,
-    "elapsed": "6.2",
-    "ticketsReclassified": 1
+    "cost": 0.015595,
+    "elapsed": "7.0",
+    "ticketsReclassified": 2
   },
   "totalUsage": {
-    "promptTokens": 9968,
-    "completionTokens": 846,
-    "totalTokens": 10814,
-    "totalCost": 0.0154132
+    "promptTokens": 10653,
+    "completionTokens": 879,
+    "totalTokens": 11532,
+    "totalCost": 0.0173518
   },
   "result": [
     {
@@ -50,133 +50,152 @@
       "product_category": "Electronics",
       "priority": "critical",
       "sentiment": "negative",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1010",
       "product_category": "Electronics",
       "priority": "medium",
       "sentiment": "neutral",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1015",
       "product_category": "Electronics",
       "priority": "high",
       "sentiment": "negative",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1021",
       "product_category": "Electronics",
       "priority": "low",
       "sentiment": "positive",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1033",
       "product_category": "Electronics",
       "priority": "high",
       "sentiment": "negative",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1038",
       "product_category": "Electronics",
       "priority": "critical",
       "sentiment": "negative",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1042",
       "product_category": "Electronics",
       "priority": "critical",
       "sentiment": "negative",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1056",
       "product_category": "Electronics",
       "priority": "high",
       "sentiment": "negative",
-      "classified_by": "gpt-4o-mini"
-    },
-    {
-      "ticket_id": "T-1064",
-      "product_category": "Electronics",
-      "priority": "high",
-      "sentiment": "negative",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1070",
       "product_category": "Electronics",
       "priority": "low",
       "sentiment": "neutral",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1072",
       "product_category": "Electronics",
       "priority": "low",
       "sentiment": "positive",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1073",
       "product_category": "Electronics",
-      "priority": "high",
+      "priority": "critical",
       "sentiment": "negative",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1074",
       "product_category": "Electronics",
       "priority": "low",
       "sentiment": "neutral",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1081",
       "product_category": "Electronics",
       "priority": "medium",
       "sentiment": "neutral",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1103",
       "product_category": "Electronics",
       "priority": "critical",
       "sentiment": "negative",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1113",
       "product_category": "Electronics",
       "priority": "low",
       "sentiment": "neutral",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1153",
       "product_category": "Electronics",
       "priority": "medium",
       "sentiment": "neutral",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
       "ticket_id": "T-1193",
       "product_category": "Electronics",
       "priority": "low",
       "sentiment": "neutral",
-      "classified_by": "gpt-4o-mini"
+      "confidence": "high",
+      "model": "gpt-4o-mini"
     },
     {
-      "ticket_id": "T-1155",
+      "confidence": "high",
+      "priority": "high",
       "product_category": "Electronics",
+      "sentiment": "negative",
+      "ticket_id": "T-1064",
+      "model": "gpt-5.5"
+    },
+    {
+      "confidence": "high",
       "priority": "medium",
+      "product_category": "Electronics",
       "sentiment": "neutral",
-      "classified_by": "gpt-5"
+      "ticket_id": "T-1155",
+      "model": "gpt-5.5"
     }
   ]
 }

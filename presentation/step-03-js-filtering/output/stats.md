@@ -2,7 +2,7 @@
 
 ## Parametry
 
-- **Model:** gpt-5
+- **Model:** gpt-5.5
 - **Język promptu:** Angielski
 - **Optymalizacja:** JS filtruje CSV po product_category="Electronics" → model dostaje mniej danych
 - **Wszystkich ticketów w CSV:** 50
@@ -13,22 +13,22 @@
 
 | Metryka           | Wartość     |
 | ----------------- | ----------- |
-| Prompt tokens     | 1,891       |
-| Completion tokens | 2,556       |
-| **TOTAL tokens**  | **4,447**   |
-| **Koszt**         | **$0.0861** |
+| Prompt tokens     | 4,589       |
+| Completion tokens | 1,000       |
+| **TOTAL tokens**  | **5,589**   |
+| **Koszt**         | **$0.0529** |
 
 ## Porównanie z poprzednimi krokami
 
 | Krok                    | Tokeny    | Koszt       | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |
 | ----------------------- | --------- | ----------- | ------------------------ | ------------------------ |
-| Step 01 (PL, brak opt.) | 12,875    | $0.1611     | — (baseline)             | — (baseline)             |
-| Step 02 (EN)            | 10,074    | $0.1338     | 2,801 (21.8%)            | $0.0273 (16.9%)          |
-| **Step 03 (obecne)**    | **4,447** | **$0.0861** | 5,627 (55.9%)            | $0.0477 (35.7%)          |
+| Step 01 (PL, brak opt.) | 10,850    | $0.0988     | — (baseline)             | — (baseline)             |
+| Step 02 (EN)            | 8,386     | $0.0810     | 2,464 (22.7%)            | $0.0178 (18.0%)          |
+| **Step 03 (obecne)**    | **5,589** | **$0.0529** | 2,797 (33.4%)            | $0.0281 (34.6%)          |
 
 ## Czas odpowiedzi
 
-26.7s
+22.4s
 
 ## Uwagi
 

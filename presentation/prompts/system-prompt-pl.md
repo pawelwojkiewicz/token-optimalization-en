@@ -61,6 +61,3 @@ Zwróć tablicę obiektów w formacie JSON, gdzie każdy obiekt ma pola:
 - product_category: kategoria produktu
 - priority: jeden z powyższych priorytetów
 - sentiment: jeden z powyższych sentymentów
-
-WAŻNE: Zwróć TYLKO zgłoszenia dotyczące produktów z kategorii "Elektronika" (kolumna product_category).
-Odfiltruj wszystkie inne kategorie produktów.
