@@ -6,35 +6,37 @@ Wygenerowano: 27.05.2026, 11:00:05
 
 | Krok                               | Tokeny   | Koszt       | Czas     | vs baseline       | vs poprz.      |
 | ---------------------------------- | -------- | ----------- | -------- | ----------------- | -------------- |
-| Step 01 — PL, brak opt., gpt-5     | 12 478   | $0.1957     | 96.3s    | — (baseline)      | —              |
-| Step 02 — EN prompt, gpt-5         | 10 014   | $0.1681     | —        | -2,464 (20%)      | -2,464 (20%)   |
-| Step 03 — JS filter wierszy        | 5902     | $0.1410     | 97.2s    | -6,576 (53%)      | -4,112 (41%)   |
-| Step 04 — Model routing            | 6543     | $0.0315     | 31s      | -5,935 (48%)      | +641 (-11%)    |
-| Step 05 — Trim kolumn (3/14)       | 2767     | $0.0017     | 8.3s     | -9,711 (78%)      | -3,776 (58%)   |
-| Step 06 — Kompresja promptu        | 2420     | $0.0016     | 5.5s     | -10,058 (81%)     | -347 (13%)     |
-| Step 07 — Pipe-separated input     | 2071     | $0.0014     | 7.7s     | -10,407 (83%)     | -349 (14%)     |
-| **Step 08 — Truncate description** | **1780** | **$0.0013** | **7.3s** | **-10,698 (86%)** | **-291 (14%)** |
+| Step 01 — PL, brak opt., gpt-5     | 12 875   | $0.1611     | 43.0s    | — (baseline)      | —              |
+| Step 02 — EN prompt, gpt-5         | 10 074   | $0.1338     | 51.0s    | -2,801 (22%)      | -2,801 (22%)   |
+| Step 03 — JS filter wierszy        | 4447     | $0.0861     | 26.7s    | -8,428 (65%)      | -5,627 (56%)   |
+| Step 04 — Model routing            | 10 814   | $0.0131     | 19.4s    | -2,061 (16%)      | +6,367 (-143%) |
+| Step 05 — Trim kolumn (3/14)       | 2854     | $0.0018     | 6.0s     | -10,021 (78%)     | -7,960 (74%)   |
+| Step 06 — Kompresja promptu        | 2504     | $0.0016     | 8.1s     | -10,371 (81%)     | -350 (12%)     |
+| Step 07 — Pipe-separated input     | 2152     | $0.0015     | 7.9s     | -10,723 (83%)     | -352 (14%)     |
+| **Step 08 — Truncate description** | **1808** | **$0.0013** | **7.6s** | **-11,067 (86%)** | **-344 (16%)** |
 
 ## Całkowite oszczędności (Step 01 → Step 08)
 
 | Metryka | Baseline | Wynik końcowy | Oszczędność         |
 | ------- | -------- | ------------- | ------------------- |
-| Tokeny  | 12 478   | 1780          | **10 698 (85.7%)**  |
-| Koszt   | $0.1957  | $0.0013       | **$0.1944 (99.3%)** |
-| Czas    | 96.3s    | 7.3s          | **89.0s (92.4%)**   |
+| Tokeny  | 12 875   | 1808          | **11 067 (86.0%)**  |
+| Koszt   | $0.1611  | $0.0013       | **$0.1598 (99.2%)** |
+| Czas    | 43.0s    | 7.6s          | **35.4s (82.3%)**   |
+
 ## Skalowalność — realny scenariusz
 
-> Firma wydała **14 000 USD** na klasyfikację ticketów. Mogła wydać **~93 USD**.
+> Firma wydała **14 000 USD** na klasyfikację ticketów. Mogła wydać **~$113**.
 
-Proporcja oszczędności z tej prezentacji (`$0.1957 → $0.0013`, czyli **99.3%**) przełożona na skalę $14 000:
+Proporcja oszczędności z tej prezentacji (`$0.1611 → $0.0013`, czyli **99.2%**) przełożona na skalę $14 000:
 
-| Scenariusz | Koszt |
-| --- | --- |
-| Bez optymalizacji (baseline) | **$14 000** |
-| Po optymalizacjach | **~$93** |
-| **Oszczędność** | **~$13 907 (99.3%)** |
+| Scenariusz                   | Koszt                |
+| ---------------------------- | -------------------- |
+| Bez optymalizacji (baseline) | **$14 000**          |
+| Po optymalizacjach           | **~$113**            |
+| **Oszczędność**              | **~$13 887 (99.2%)** |
 
-Obliczenie: `$0.0013 / $0.1957 × $14 000 ≈ $93`
+Obliczenie: `$0.0013 / $0.1611 × $14 000 ≈ $113`
+
 ## Porównanie lokalnych modeli (step-09)
 
 | Model                      | Odpalenia | Avg zgodność | Czas | Uwagi             |

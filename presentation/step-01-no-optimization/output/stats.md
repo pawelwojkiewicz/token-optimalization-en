@@ -15,7 +15,7 @@
 | Prompt tokens     | 9,008                                     |
 | Completion tokens | 3,867                                     |
 | **TOTAL tokens**  | **12,875**                                |
-| **Koszt**         | **$0.2061** (przy 5 000 rekordów → ~\$20) |
+| **Koszt**         | **$0.1611** (przy 5 000 rekordów → ~\$16) |
 
 ## Czas odpowiedzi
 

@@ -15,14 +15,14 @@
 | Prompt tokens     | 6,738       |
 | Completion tokens | 3,336       |
 | **TOTAL tokens**  | **10,074**  |
-| **Koszt**         | **$0.1675** |
+| **Koszt**         | **$0.1338** |
 
 ## Porównanie z poprzednimi krokami
 
 | Krok                    | Tokeny     | Koszt       | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |
 | ----------------------- | ---------- | ----------- | ------------------------ | ------------------------ |
-| Step 01 (PL, brak opt.) | 12,875     | $0.2061     | — (baseline)             | — (baseline)             |
-| **Step 02 (obecne)**    | **10,074** | **$0.1675** | 2,801 (21.8%)            | $0.0386 (18.7%)          |
+| Step 01 (PL, brak opt.) | 12,875     | $0.1611     | — (baseline)             | — (baseline)             |
+| **Step 02 (obecne)**    | **10,074** | **$0.1338** | 2,801 (21.8%)            | $0.0273 (16.9%)          |
 
 ## Czas odpowiedzi
 
