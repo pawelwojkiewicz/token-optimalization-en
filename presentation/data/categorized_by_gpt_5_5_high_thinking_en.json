@@ -1,0 +1,352 @@
+[
+  {
+    "ticket_id": "T-1001",
+    "product_category": "Clothing",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1002",
+    "product_category": "Electronics",
+    "priority": "critical",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1003",
+    "product_category": "Beauty",
+    "priority": "low",
+    "sentiment": "positive",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1004",
+    "product_category": "Home Appliances",
+    "priority": "medium",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1005",
+    "product_category": "Software",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1006",
+    "product_category": "Footwear",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1007",
+    "product_category": "Furniture",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1008",
+    "product_category": "Groceries",
+    "priority": "medium",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1009",
+    "product_category": "Services",
+    "priority": "low",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1010",
+    "product_category": "Electronics",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1011",
+    "product_category": "Books",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1012",
+    "product_category": "Sports",
+    "priority": "medium",
+    "sentiment": "negative",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1013",
+    "product_category": "Computers",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1014",
+    "product_category": "Beauty",
+    "priority": "medium",
+    "sentiment": "positive",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1015",
+    "product_category": "Electronics",
+    "priority": "high",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1016",
+    "product_category": "Home Appliances",
+    "priority": "critical",
+    "sentiment": "negative",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1017",
+    "product_category": "Toys",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1018",
+    "product_category": "Entertainment",
+    "priority": "high",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1019",
+    "product_category": "Home Appliances",
+    "priority": "medium",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1020",
+    "product_category": "Vouchers",
+    "priority": "low",
+    "sentiment": "positive",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1021",
+    "product_category": "Electronics",
+    "priority": "low",
+    "sentiment": "positive",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1022",
+    "product_category": "Clothing",
+    "priority": "high",
+    "sentiment": "negative",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1023",
+    "product_category": "Pet Supplies",
+    "priority": "high",
+    "sentiment": "negative",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1024",
+    "product_category": "Services",
+    "priority": "low",
+    "sentiment": "positive",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1025",
+    "product_category": "Sports",
+    "priority": "medium",
+    "sentiment": "negative",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1026",
+    "product_category": "Beauty",
+    "priority": "critical",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1027",
+    "product_category": "Vouchers",
+    "priority": "medium",
+    "sentiment": "negative",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1028",
+    "product_category": "Toys",
+    "priority": "low",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1029",
+    "product_category": "Computers",
+    "priority": "high",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1030",
+    "product_category": "Home Appliances",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1031",
+    "product_category": "Clothing",
+    "priority": "medium",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1032",
+    "product_category": "Beauty",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1033",
+    "product_category": "Electronics",
+    "priority": "high",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1034",
+    "product_category": "Office Supplies",
+    "priority": "low",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1035",
+    "product_category": "Computers",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1036",
+    "product_category": "Other",
+    "priority": "critical",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1038",
+    "product_category": "Electronics",
+    "priority": "critical",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1042",
+    "product_category": "Electronics",
+    "priority": "critical",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1056",
+    "product_category": "Electronics",
+    "priority": "high",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1064",
+    "product_category": "Electronics",
+    "priority": "high",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1070",
+    "product_category": "Electronics",
+    "priority": "low",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1072",
+    "product_category": "Electronics",
+    "priority": "low",
+    "sentiment": "positive",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1073",
+    "product_category": "Electronics",
+    "priority": "high",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1074",
+    "product_category": "Electronics",
+    "priority": "low",
+    "sentiment": "neutral",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1081",
+    "product_category": "Electronics",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1103",
+    "product_category": "Electronics",
+    "priority": "critical",
+    "sentiment": "negative",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1113",
+    "product_category": "Electronics",
+    "priority": "low",
+    "sentiment": "neutral",
+    "confidence": "low"
+  },
+  {
+    "ticket_id": "T-1153",
+    "product_category": "Electronics",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1155",
+    "product_category": "Electronics",
+    "priority": "medium",
+    "sentiment": "neutral",
+    "confidence": "high"
+  },
+  {
+    "ticket_id": "T-1193",
+    "product_category": "Electronics",
+    "priority": "low",
+    "sentiment": "neutral",
+    "confidence": "low"
+  }
+]

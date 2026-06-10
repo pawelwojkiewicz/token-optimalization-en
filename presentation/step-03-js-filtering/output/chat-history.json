@@ -1,0 +1,154 @@
+{
+  "model": "gpt-5",
+  "timestamp": "2026-06-03T15:56:45.051Z",
+  "jsPreFilter": {
+    "totalRecords": 50,
+    "electronicsRecords": 19,
+    "filteredOut": 31
+  },
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an expert in classifying customer support tickets for an e-commerce store.\n\nFor each ticket provided, determine:\n1. Priority — one of: low, medium, high, critical\n2. Sentiment — one of: positive, neutral, negative\n\nPriority definitions:\n- critical: customer threatens legal action, dangerous product, suspected account breach\n- high: large amount, urgent deadline, emotional language (scandal, drama, immediately)\n- medium: standard complaint or issue requiring action\n- low: informational question, praise, non-urgent request\n\nSentiment definitions:\n- positive: customer is satisfied, thankful, praising\n- neutral: customer calmly describes an issue, no emotions\n- negative: customer is angry, disappointed, uses exclamation marks, threatens\n\nClassify each ticket and return ALL results. Include the product_category field in each result."
+    },
+    {
+      "role": "user",
+      "content": "Here are 19 customer support tickets. Classify each one.\n\n[\n  {\n    \"ticket_id\": \"T-1002\",\n    \"subject\": \"ACCOUNT BLOCKED - MONEY CHARGED!!!\",\n    \"description\": \"SCANDAL! You charged me 4000 PLN TWICE and there is NO order in the system! I am contacting my LAWYER TODAY and filing a report with the POLICE! Refund the money IMMEDIATELY or we will meet in court! This is FRAUD!\"\n  },\n  {\n    \"ticket_id\": \"T-1010\",\n    \"subject\": \"Smartwatch does not connect to phone\",\n    \"description\": \"The smartwatch I bought cannot pair with my phone via Bluetooth. The app does not detect it at all. I tried resetting both devices many times without success. Please advise how to solve the problem or start the warranty procedure.\"\n  },\n  {\n    \"ticket_id\": \"T-1015\",\n    \"subject\": \"Broken headphones - I want a refund NOW\",\n    \"description\": \"These 1500 PLN headphones are DEFECTIVE! There is constant noise in the left earbud that makes them completely useless! I am extremely disappointed and DEMAND an immediate full refund! Do not offer me any repair - I want my money TODAY!\"\n  },\n  {\n    \"ticket_id\": \"T-1021\",\n    \"subject\": \"Missing VAT invoice for headset\",\n    \"description\": \"The VAT invoice was not included with my gaming headset order. I need this document for my company accounting purposes only — the product itself works fine and I am satisfied with it. I provided the tax ID when ordering. Please send the invoice to my email whenever convenient there is no urgency.\"\n  },\n  {\n    \"ticket_id\": \"T-1033\",\n    \"subject\": \"Camera order cancellation - FURIOUS\",\n    \"description\": \"I am FURIOUS! You canceled my 6000 PLN camera order without warning! I have already signed a bank loan agreement for this purchase! This is absolutely UNACCEPTABLE! I demand that you find this camera from another supplier immediately. I have never been this angry at any store!\"\n  },\n  {\n    \"ticket_id\": \"T-1038\",\n    \"subject\": \"Double charge - I am calling a lawyer\",\n    \"description\": \"You blocked 2500 PLN on my credit card TWICE! This is theft! I am filing a complaint with UOKiK TODAY and my lawyer is preparing a lawsuit. Give me my money back IMMEDIATELY or see you in court!\"\n  },\n  {\n    \"ticket_id\": \"T-1042\",\n    \"subject\": \"DANGEROUS PHONE - burns skin!\",\n    \"description\": \"The phone you sold me started overheating DANGEROUSLY while charging at night! It burned my hand and scorched the tabletop! This device is a FIRE HAZARD and a DANGER to my family! I am reporting this to the product safety inspection authority and demand an immediate recall!\"\n  },\n  {\n    \"ticket_id\": \"T-1056\",\n    \"subject\": \"Speaker BROKEN from day one!\",\n    \"description\": \"The speaker crackles and whistles horribly at volumes above 50%! For 1200 PLN I expected premium quality, not this GARBAGE! I am deeply frustrated and disappointed! Process my return form IMMEDIATELY or I will leave negative reviews everywhere!\"\n  },\n  {\n    \"ticket_id\": \"T-1064\",\n    \"subject\": \"Missing accessories worth 800 PLN!\",\n    \"description\": \"My 3500 PLN camera order arrived WITHOUT the helmet mount and spare battery that I paid for! That is 800 PLN worth of missing items! I am very upset - either send my accessories by express delivery TODAY or refund the full amount! This is completely unacceptable!\"\n  },\n  {\n    \"ticket_id\": \"T-1070\",\n    \"subject\": \"Request to change delivery — no rush\",\n    \"description\": \"Good morning, I would also like to ask whether I can change the drone delivery from courier to personal pickup at your showroom in Warsaw. The package has not been shipped yet. If possible, that would be more convenient, but if not, courier delivery is also fine. No rush, please reply when you have time.\"\n  },\n  {\n    \"ticket_id\": \"T-1072\",\n    \"subject\": \"Thank you for excellent service!\",\n    \"description\": \"I just wanted to say THANK YOU! The Logitech mouse arrived perfectly packed, works great, and your customer service helped me choose the right model. The best shopping experience I have ever had. I will definitely recommend your store to all my friends!\"\n  },\n  {\n    \"ticket_id\": \"T-1073\",\n    \"subject\": \"URGENT: I received the wrong item - expensive equipment did not arrive!\",\n    \"description\": \"I ordered a DJI Mini 5 drone (value ~2500 zloty), but I received a phone case. This is clearly a serious warehouse mistake. The order is already delayed, and I need the correct item shipped within 24 hours or an immediate refund. The case requires urgent review by customer service.\"\n  },\n  {\n    \"ticket_id\": \"T-1074\",\n    \"subject\": \"Cancellation of accidental order\",\n    \"description\": \"I accidentally placed an order for an iPad 5 minutes ago. The status still shows processing. Could you please cancel it? I do not need this product. Thank you for your help.\"\n  },\n  {\n    \"ticket_id\": \"T-1081\",\n    \"subject\": \"TV setup problems\",\n    \"description\": \"I cannot connect my LG TV to the WiFi network. I followed the instructions, but the TV keeps showing a connection error. The remote also sometimes does not respond. Could you provide troubleshooting steps?\"\n  },\n  {\n    \"ticket_id\": \"T-1103\",\n    \"subject\": \"FRAUD - counterfeit product sold!\",\n    \"description\": \"I am CERTAIN that you sold me a COUNTERFEIT camera! The serial number does not match the official Canon database! This is FRAUD and I am reporting you to the police and to UOKiK! I demand a 5000 PLN refund IMMEDIATELY or my lawyer will contact you within 24 hours!\"\n  },\n  {\n    \"ticket_id\": \"T-1113\",\n    \"subject\": \"Question about wholesale pricing\",\n    \"description\": \"Good morning, I am interested in ordering 20 LG OLED TVs for our hotel chain. Could you provide information about wholesale prices and delivery time for such a large order? Thank you in advance.\"\n  },\n  {\n    \"ticket_id\": \"T-1153\",\n    \"subject\": \"Camera warranty claim\",\n    \"description\": \"The shutter on my Canon camera stopped working after 3 months of normal use. The camera is still under warranty. I would like to send it in for repair. Please provide the warranty service address and shipping instructions.\"\n  },\n  {\n    \"ticket_id\": \"T-1155\",\n    \"subject\": \"Order delayed by 5 days\",\n    \"description\": \"My camera order was supposed to arrive last Friday, but the tracking has shown no movement since Tuesday. I am worried about the delivery. Could you check with the courier what happened and provide an updated delivery date?\"\n  },\n  {\n    \"ticket_id\": \"T-1193\",\n    \"subject\": \"Request to cancel MacBook order\",\n    \"description\": \"I realized that I ordered the wrong MacBook configuration. I need 16GB RAM, not 8GB. The order is still in processing status. Could you cancel it so I can place a new one with the correct specifications? No rush, whenever convenient. Thanks!\"\n  }\n]"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"tickets\":[{\"ticket_id\":\"T-1002\",\"product_category\":\"billing\",\"priority\":\"critical\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1010\",\"product_category\":\"smartwatch\",\"priority\":\"medium\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1015\",\"product_category\":\"headphones\",\"priority\":\"high\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1021\",\"product_category\":\"headset\",\"priority\":\"low\",\"sentiment\":\"positive\"},{\"ticket_id\":\"T-1033\",\"product_category\":\"camera\",\"priority\":\"high\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1038\",\"product_category\":\"billing\",\"priority\":\"critical\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1042\",\"product_category\":\"phone\",\"priority\":\"critical\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1056\",\"product_category\":\"speaker\",\"priority\":\"high\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1064\",\"product_category\":\"camera accessories\",\"priority\":\"high\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1070\",\"product_category\":\"drone\",\"priority\":\"low\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1072\",\"product_category\":\"mouse\",\"priority\":\"low\",\"sentiment\":\"positive\"},{\"ticket_id\":\"T-1073\",\"product_category\":\"drone\",\"priority\":\"high\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1074\",\"product_category\":\"tablet\",\"priority\":\"low\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1081\",\"product_category\":\"TV\",\"priority\":\"medium\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1103\",\"product_category\":\"camera\",\"priority\":\"critical\",\"sentiment\":\"negative\"},{\"ticket_id\":\"T-1113\",\"product_category\":\"TV\",\"priority\":\"low\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1153\",\"product_category\":\"camera\",\"priority\":\"medium\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1155\",\"product_category\":\"camera\",\"priority\":\"medium\",\"sentiment\":\"neutral\"},{\"ticket_id\":\"T-1193\",\"product_category\":\"laptop\",\"priority\":\"low\",\"sentiment\":\"neutral\"}]}"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1891,
+    "completion_tokens": 2556,
+    "total_tokens": 4447,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2112,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "result": [
+    {
+      "ticket_id": "T-1002",
+      "product_category": "billing",
+      "priority": "critical",
+      "sentiment": "negative"
+    },
+    {
+      "ticket_id": "T-1010",
+      "product_category": "smartwatch",
+      "priority": "medium",
+      "sentiment": "neutral"
+    },
+    {
+      "ticket_id": "T-1015",
+      "product_category": "headphones",
+      "priority": "high",
+      "sentiment": "negative"
+    },
+    {
+      "ticket_id": "T-1021",
+      "product_category": "headset",
+      "priority": "low",
+      "sentiment": "positive"
+    },
+    {
+      "ticket_id": "T-1033",
+      "product_category": "camera",
+      "priority": "high",
+      "sentiment": "negative"
+    },
+    {
+      "ticket_id": "T-1038",
+      "product_category": "billing",
+      "priority": "critical",
+      "sentiment": "negative"
+    },
+    {
+      "ticket_id": "T-1042",
+      "product_category": "phone",
+      "priority": "critical",
+      "sentiment": "negative"
+    },
+    {
+      "ticket_id": "T-1056",
+      "product_category": "speaker",
+      "priority": "high",
+      "sentiment": "negative"
+    },
+    {
+      "ticket_id": "T-1064",
+      "product_category": "camera accessories",
+      "priority": "high",
+      "sentiment": "negative"
+    },
+    {
+      "ticket_id": "T-1070",
+      "product_category": "drone",
+      "priority": "low",
+      "sentiment": "neutral"
+    },
+    {
+      "ticket_id": "T-1072",
+      "product_category": "mouse",
+      "priority": "low",
+      "sentiment": "positive"
+    },
+    {
+      "ticket_id": "T-1073",
+      "product_category": "drone",
+      "priority": "high",
+      "sentiment": "negative"
+    },
+    {
+      "ticket_id": "T-1074",
+      "product_category": "tablet",
+      "priority": "low",
+      "sentiment": "neutral"
+    },
+    {
+      "ticket_id": "T-1081",
+      "product_category": "TV",
+      "priority": "medium",
+      "sentiment": "neutral"
+    },
+    {
+      "ticket_id": "T-1103",
+      "product_category": "camera",
+      "priority": "critical",
+      "sentiment": "negative"
+    },
+    {
+      "ticket_id": "T-1113",
+      "product_category": "TV",
+      "priority": "low",
+      "sentiment": "neutral"
+    },
+    {
+      "ticket_id": "T-1153",
+      "product_category": "camera",
+      "priority": "medium",
+      "sentiment": "neutral"
+    },
+    {
+      "ticket_id": "T-1155",
+      "product_category": "camera",
+      "priority": "medium",
+      "sentiment": "neutral"
+    },
+    {
+      "ticket_id": "T-1193",
+      "product_category": "laptop",
+      "priority": "low",
+      "sentiment": "neutral"
+    }
+  ]
+}
