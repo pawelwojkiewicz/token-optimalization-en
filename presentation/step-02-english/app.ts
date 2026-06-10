@@ -31,7 +31,10 @@ async function main() {
   const previousStats = await loadStatsBefore(2);
 
   // 1. Wczytaj CAŁY plik CSV (angielska wersja) jako surowy tekst
-  const csvPath = path.resolve(process.cwd(), "presentation/data/e-commerce-tickets-en.csv");
+  const csvPath = path.resolve(
+    process.cwd(),
+    "presentation/data/e-commerce-tickets-en.csv",
+  );
   const csvContent = await readFile(csvPath, "utf8");
 
   const lineCount = csvContent.split("\n").filter((l) => l.trim()).length;
