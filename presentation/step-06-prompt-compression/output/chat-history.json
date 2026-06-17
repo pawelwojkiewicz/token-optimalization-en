@@ -1,6 +1,6 @@
 {
   "timestamp": "2026-06-10T12:07:36.142Z",
-  "optimization": "Prompt compression: system prompt skrócony z 2718 do 1055 znaków (61% mniej)",
+  "optimization": "Prompt compression: system prompt shortened from 2718 to 1055 characters (61% less)",
   "routing": {
     "cheapModel": "gpt-4o-mini",
     "expensiveModel": "gpt-5.5",

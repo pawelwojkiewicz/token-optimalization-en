@@ -1,6 +1,6 @@
 {
   "timestamp": "2026-06-10T17:58:25.615Z",
-  "optimization": "Pipe format: JSON 7315 znaków → pipe 6050 znaków (17% mniej)",
+  "optimization": "Pipe format: JSON 7315 chars → pipe 6050 chars (17% less)",
   "routing": {
     "cheapModel": "gpt-4o-mini",
     "expensiveModel": "gpt-5.5",

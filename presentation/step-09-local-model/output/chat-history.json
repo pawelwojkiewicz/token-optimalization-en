@@ -1,6 +1,6 @@
 {
   "timestamp": "2026-06-03T16:32:51.321Z",
-  "optimization": "Pipe format + Truncation: opisy obcięte do 150 znaków (0/19 obciętych, avg 242→242 znaków)",
+  "optimization": "Pipe format + Truncation: descriptions truncated to 150 chars (0/19 truncated, avg 242→242 chars)",
   "truncation": {
     "maxChars": 150,
     "truncatedCount": 0,
