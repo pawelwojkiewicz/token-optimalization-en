@@ -19,9 +19,7 @@ interface StepData {
   coverage: string;
 }
 
-async function parseStats(
-  statsPath: string,
-): Promise<{
+async function parseStats(statsPath: string): Promise<{
   tokens: number;
   cost: number;
   elapsed: number;
@@ -59,9 +57,7 @@ async function parseStats(
     const coverageMatch = content.match(/Coverage:\s*(\d+\/\d+)/);
     let coverage = coverageMatch?.[1] ?? "";
     if (!coverage && /perfectly match/i.test(content)) {
-      const refMatch = content.match(
-        /Reference tickets[^:]*:\*\*\s*(\d+)/,
-      );
+      const refMatch = content.match(/Reference tickets[^:]*:\*\*\s*(\d+)/);
       const ref = refMatch?.[1] ?? "19";
       coverage = `${ref}/${ref}`;
     }
@@ -237,8 +233,7 @@ async function main() {
 
   console.log("\n" + LINE);
   console.log(
-    " TOTAL SAVINGS — Step 01 → Step " +
-      String(data.length).padStart(2, "0"),
+    " TOTAL SAVINGS — Step 01 → Step " + String(data.length).padStart(2, "0"),
   );
   console.log(LINE);
   console.log(
@@ -275,7 +270,7 @@ async function main() {
     { name: "google/gemma-4-e4b", diffs: "2x", time: "~40s", acc: "avg 53%" },
   ];
   console.log(
-    `${ "Model".padEnd(35)} ${"Diffs".padStart(6)} ${"Time".padStart(10)} ${"Accuracy".padStart(10)}`,
+    `${"Model".padEnd(35)} ${"Diffs".padStart(6)} ${"Time".padStart(10)} ${"Accuracy".padStart(10)}`,
   );
   console.log("─".repeat(65));
   for (const m of localModels) {

@@ -20,11 +20,11 @@
 
 ## Comparison with previous steps
 
-| Step                    | Tokens    | Cost        | Token savings vs prev. | Cost savings vs prev. |
-| ----------------------- | --------- | ----------- | ---------------------- | --------------------- |
-| Step 01 (PL, no opt.)   | 10,850    | $0.0988     | — (baseline)           | — (baseline)          |
-| Step 02 (EN)            | 8,386     | $0.0810     | 2,464 (22.7%)          | $0.0178 (18.0%)       |
-| **Step 03 (current)**   | **5,589** | **$0.0529** | 2,797 (33.4%)          | $0.0281 (34.6%)       |
+| Step                  | Tokens    | Cost        | Token savings vs prev. | Cost savings vs prev. |
+| --------------------- | --------- | ----------- | ---------------------- | --------------------- |
+| Step 01 (PL, no opt.) | 10,850    | $0.0988     | — (baseline)           | — (baseline)          |
+| Step 02 (EN)          | 8,386     | $0.0810     | 2,464 (22.7%)          | $0.0178 (18.0%)       |
+| **Step 03 (current)** | **5,589** | **$0.0529** | 2,797 (33.4%)          | $0.0281 (34.6%)       |
 
 ## Response time
 
