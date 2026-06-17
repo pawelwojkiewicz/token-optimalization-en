@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-06-10T12:10:40.065Z",
-  "optimization": "Pipe format + Truncation: opisy obcięte do 150 znaków (19/19 obciętych, avg 263→150 znaków)",
+  "timestamp": "2026-06-10T18:00:02.806Z",
+  "optimization": "Pipe format + Truncation: opisy obcięte do 150 znaków (19/19 obciętych, avg 275→150 znaków)",
   "truncation": {
     "maxChars": 150,
     "truncatedCount": 19,
-    "avgFull": 263,
+    "avgFull": 275,
     "avgTrunc": 150
   },
   "routing": {
@@ -17,11 +17,11 @@
   "phase1": {
     "model": "gpt-4o-mini",
     "usage": {
-      "prompt_tokens": 1297,
-      "completion_tokens": 504,
-      "total_tokens": 1801,
+      "prompt_tokens": 1298,
+      "completion_tokens": 506,
+      "total_tokens": 1804,
       "prompt_tokens_details": {
-        "cached_tokens": 0,
+        "cached_tokens": 1024,
         "audio_tokens": 0
       },
       "completion_tokens_details": {
@@ -31,7 +31,7 @@
         "rejected_prediction_tokens": 0
       }
     },
-    "cost": 0.0004969499999999999
+    "cost": 0.0004982999999999999
   },
   "phase2": {
     "model": "gpt-5.5",
@@ -44,15 +44,15 @@
     "ticketsReclassified": 0
   },
   "totalUsage": {
-    "promptTokens": 1297,
-    "completionTokens": 504,
-    "totalTokens": 1801,
-    "totalCost": 0.0004969499999999999
+    "promptTokens": 1298,
+    "completionTokens": 506,
+    "totalTokens": 1804,
+    "totalCost": 0.0004982999999999999
   },
   "result": [
     {
       "ticket_id": "T-1002",
-      "product_category": "Unknown",
+      "product_category": "unknown",
       "priority": "critical",
       "sentiment": "negative",
       "confidence": "high",
@@ -60,7 +60,7 @@
     },
     {
       "ticket_id": "T-1010",
-      "product_category": "Smartwatch",
+      "product_category": "smartwatch",
       "priority": "medium",
       "sentiment": "neutral",
       "confidence": "high",
@@ -68,7 +68,7 @@
     },
     {
       "ticket_id": "T-1015",
-      "product_category": "Headphones",
+      "product_category": "headphones",
       "priority": "high",
       "sentiment": "negative",
       "confidence": "high",
@@ -76,7 +76,7 @@
     },
     {
       "ticket_id": "T-1021",
-      "product_category": "Headset",
+      "product_category": "headset",
       "priority": "low",
       "sentiment": "neutral",
       "confidence": "high",
@@ -84,7 +84,7 @@
     },
     {
       "ticket_id": "T-1033",
-      "product_category": "Camera",
+      "product_category": "camera",
       "priority": "high",
       "sentiment": "negative",
       "confidence": "high",
@@ -92,7 +92,7 @@
     },
     {
       "ticket_id": "T-1038",
-      "product_category": "Unknown",
+      "product_category": "unknown",
       "priority": "critical",
       "sentiment": "negative",
       "confidence": "high",
@@ -100,7 +100,7 @@
     },
     {
       "ticket_id": "T-1042",
-      "product_category": "Phone",
+      "product_category": "phone",
       "priority": "critical",
       "sentiment": "negative",
       "confidence": "high",
@@ -108,7 +108,7 @@
     },
     {
       "ticket_id": "T-1056",
-      "product_category": "Speaker",
+      "product_category": "speaker",
       "priority": "medium",
       "sentiment": "negative",
       "confidence": "high",
@@ -116,7 +116,7 @@
     },
     {
       "ticket_id": "T-1064",
-      "product_category": "Camera",
+      "product_category": "camera",
       "priority": "high",
       "sentiment": "negative",
       "confidence": "high",
@@ -124,7 +124,7 @@
     },
     {
       "ticket_id": "T-1070",
-      "product_category": "Unknown",
+      "product_category": "drone",
       "priority": "low",
       "sentiment": "neutral",
       "confidence": "high",
@@ -132,7 +132,7 @@
     },
     {
       "ticket_id": "T-1072",
-      "product_category": "Mouse",
+      "product_category": "mouse",
       "priority": "low",
       "sentiment": "positive",
       "confidence": "high",
@@ -140,7 +140,7 @@
     },
     {
       "ticket_id": "T-1073",
-      "product_category": "Drone",
+      "product_category": "drone",
       "priority": "high",
       "sentiment": "negative",
       "confidence": "high",
@@ -164,7 +164,7 @@
     },
     {
       "ticket_id": "T-1103",
-      "product_category": "Camera",
+      "product_category": "camera",
       "priority": "critical",
       "sentiment": "negative",
       "confidence": "high",
@@ -180,7 +180,7 @@
     },
     {
       "ticket_id": "T-1153",
-      "product_category": "Camera",
+      "product_category": "camera",
       "priority": "medium",
       "sentiment": "neutral",
       "confidence": "high",
@@ -188,7 +188,7 @@
     },
     {
       "ticket_id": "T-1155",
-      "product_category": "Camera",
+      "product_category": "camera",
       "priority": "medium",
       "sentiment": "neutral",
       "confidence": "high",

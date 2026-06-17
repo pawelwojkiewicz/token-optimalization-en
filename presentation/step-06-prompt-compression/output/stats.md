@@ -1,48 +1,48 @@
-# Step 06 — Kompresja promptu
+# Step 06 — Prompt compression
 
-## Parametry
-- **Tani model:** gpt-4o-mini
-- **Drogi model:** gpt-5.5
-- **Język promptu:** Angielski (skompresowany)
-- **Optymalizacje:** JS filter wierszy + EN + Model Routing + Trim kolumn + Kompresja promptu
-- **Ticketów Electronics:** 19
-- **High confidence (tani model):** 19
-- **Low confidence (→ drogi model):** 0
+## Parameters
+- **Cheap model:** gpt-4o-mini
+- **Expensive model:** gpt-5.5
+- **Prompt language:** English (compressed)
+- **Optimizations:** JS row filter + EN + Model Routing + Column trim + Prompt compression
+- **Electronics tickets:** 19
+- **High confidence (cheap model):** 19
+- **Low confidence (→ expensive model):** 0
 
-## Kompresja promptu
-- **Oryginalny prompt:** 2718 znaków
-- **Skompresowany prompt:** 1055 znaków (61% mniej)
+## Prompt compression
+- **Original prompt:** 2718 characters
+- **Compressed prompt:** 1055 characters (61% less)
 
-## Zużycie tokenów
-| Faza | Model | Prompt | Completion | Total | Koszt |
-|------|-------|--------|------------|-------|-------|
-| Faza 1 | gpt-4o-mini | 2,075 | 499 | 2,574 | $0.0006 |
-| Faza 2 | gpt-5.5 | 0 | 0 | 0 | $0.0000 |
-| **SUMA** | — | 2,075 | 499 | **2,574** | **$0.0006** |
+## Token usage
+| Phase | Model | Prompt | Completion | Total | Cost |
+|-------|-------|--------|------------|-------|------|
+| Phase 1 | gpt-4o-mini | 2,075 | 499 | 2,574 | $0.0006 |
+| Phase 2 | gpt-5.5 | 0 | 0 | 0 | $0.0000 |
+| **TOTAL** | — | 2,075 | 499 | **2,574** | **$0.0006** |
 
-## Porównanie z poprzednimi krokami
-| Krok | Tokeny | Koszt | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |
-|------|--------|-------|----------------|----------------|
-| Step 01 (PL, brak opt.) | 10,850 | $0.0988 | — (baseline) | — (baseline) |
+## Comparison with previous steps
+| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |
+|------|--------|------|------------------------|----------------------|
+| Step 01 (PL, no opt.) | 10,850 | $0.0988 | — (baseline) | — (baseline) |
 | Step 02 (EN) | 8,386 | $0.0810 | 2,464 (22.7%) | $0.0178 (18.0%) |
-| Step 03 (JS filter wierszy) | 5,589 | $0.0529 | 2,797 (33.4%) | $0.0281 (34.7%) |
+| Step 03 (JS row filter) | 5,589 | $0.0529 | 2,797 (33.4%) | $0.0281 (34.7%) |
 | Step 04 (Model routing) | 11,532 | $0.0174 | -5,943 (-106.3%) | $0.0355 (67.1%) |
-| Step 05 (Trim kolumn) | 3,874 | $0.0084 | 7,658 (66.4%) | $0.0090 (51.7%) |
-| **Step 06 (obecne)** | **2,574** | **$0.0006** | 1,300 (33.6%) | $0.0078 (92.7%) |
+| Step 05 (Column trim) | 3,874 | $0.0084 | 7,658 (66.4%) | $0.0090 (51.7%) |
+| **Step 06 (current)** | **2,574** | **$0.0006** | 1,300 (33.6%) | $0.0078 (92.7%) |
 
-## Czas odpowiedzi
-- Faza 1: 6.8s
-- Faza 2: 0s
-- **Łącznie:** 6.8s
+## Response time
+- Phase 1: 6.8s
+- Phase 2: 0s
+- **Total:** 6.8s
 
-## Co kompresujemy
-System prompt skrócony z pełnych opisów i 8 przykładów do:
-- Jednoliniowe definicje priorytetów (pipe-separated)
-- 6 przykładów w formacie inline (zamiast wieloliniowych bloków)
-- Usunięte powtórzenia i wypełniacze
+## What we compress
+System prompt shortened from full descriptions and 8 examples to:
+- Single-line priority definitions (pipe-separated)
+- 6 inline examples (instead of multi-line blocks)
+- Removed repetitions and filler text
 
-## Porównanie z plikiem referencyjnym
-- **Tickety referencyjne (Electronics):** 19
-- **Tickety zwrócone przez model:** 19
+## Comparison with reference file
+- **Reference tickets (Electronics):** 19
+- **Tickets returned by model:** 19
 
-✅ **Dane idealnie się pokrywają!** Wszystkie 19 ticketów zgadza się co do ticket_id, priority i sentiment.
+✅ **Data matches perfectly!** All 19 tickets agree on ticket_id, priority and sentiment.

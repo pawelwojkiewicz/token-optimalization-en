@@ -7,8 +7,8 @@ export const PRICING: Record<string, { input: number; output: number }> = {
 };
 
 // ---------------------------------------------------------------------------
-// Porównanie wyników z plikiem referencyjnym (categorized_by_gpt_5_5_high_thinking_en.json)
-// Zwraca gotową sekcję markdown do dołączenia do stats.md
+// Comparison of results with the reference file (categorized_by_gpt_5_5_high_thinking_en.json)
+// Returns a ready markdown section to append to stats.md
 // ---------------------------------------------------------------------------
 
 export async function buildRefComparisonSection(
@@ -35,7 +35,7 @@ export async function buildRefComparisonSection(
     );
     refAll = JSON.parse(raw);
   } catch {
-    return `\n## Porównanie z plikiem referencyjnym\n⚠️ Nie udało się wczytać pliku referencyjnego: ${refFilePath}\n`;
+    return `\n## Comparison with reference file\n⚠️ Failed to load reference file: ${refFilePath}\n`;
   }
 
   const refFiltered = refAll.filter(
@@ -71,7 +71,7 @@ export async function buildRefComparisonSection(
         differences.push(
           `- **${id}**: ` +
             diffs
-              .map((f) => `${f}: ref=\`${ref[f]}\` vs wynik=\`${res[f]}\``)
+              .map((f) => `${f}: ref=\`${ref[f]}\` vs result=\`${res[f]}\``)
               .join(", "),
         );
       }
@@ -85,29 +85,29 @@ export async function buildRefComparisonSection(
     onlyInResult.length === 0 &&
     differences.length === 0;
 
-  let section = `\n## Porównanie z plikiem referencyjnym\n`;
-  section += `- **Tickety referencyjne (${categoryFilter}):** ${totalRef}\n`;
-  section += `- **Tickety zwrócone przez model:** ${resultTickets.length}\n\n`;
+  let section = `\n## Comparison with reference file\n`;
+  section += `- **Reference tickets (${categoryFilter}):** ${totalRef}\n`;
+  section += `- **Tickets returned by model:** ${resultTickets.length}\n\n`;
 
   if (isIdeal) {
-    section += `✅ **Dane idealnie się pokrywają!** Wszystkie ${totalRef} ticketów zgadza się co do ticket_id, priority i sentiment.\n`;
+    section += `✅ **Data matches perfectly!** All ${totalRef} tickets agree on ticket_id, priority and sentiment.\n`;
   } else {
-    section += `⚠️ **Pokrycie: ${exactMatches}/${totalRef} ticketów zgodnych w 100%**\n\n`;
+    section += `⚠️ **Coverage: ${exactMatches}/${totalRef} tickets matching 100%**\n\n`;
     if (onlyInRef.length > 0) {
       section +=
-        `### Brakujące w wyniku modelu\n` +
+        `### Missing in model result\n` +
         onlyInRef.map((id) => `- ${id}`).join("\n") +
         "\n\n";
     }
     if (onlyInResult.length > 0) {
       section +=
-        `### Nadmiarowe w wyniku modelu\n` +
+        `### Extra in model result\n` +
         onlyInResult.map((id) => `- ${id}`).join("\n") +
         "\n\n";
     }
     if (differences.length > 0) {
       section +=
-        `### Różnice w klasyfikacji (ticket_id: pole: ref vs wynik)\n` +
+        `### Classification differences (ticket_id: field: ref vs result)\n` +
         differences.join("\n") +
         "\n";
     }
@@ -117,7 +117,7 @@ export async function buildRefComparisonSection(
 }
 
 // ---------------------------------------------------------------------------
-// Statystyki kroków — parsing stats.md
+// Step statistics — parsing stats.md
 // ---------------------------------------------------------------------------
 
 export interface StepStats {
@@ -132,18 +132,18 @@ export async function loadStepStats(
 ): Promise<StepStats | null> {
   try {
     const content = await readFile(statsPath, "utf8");
-    // Standardowy format: | **TOTAL tokens** | **X** |
-    let totalMatch = content.match(/TOTAL tokens\*\*\s*\|\s*\*\*([\d,]+)/);
-    let costMatch = content.match(/Koszt\*\*\s*\|\s*\*\*\$([\d.]+)/);
-    // Fallback dla formatu z tabelą faz (SUMA row): | **SUMA** | — | ... | **X** | **$Y** |
+    // Standard format: | **TOTAL tokens** | **X** |
+    let totalMatch = content.match(/TOTAL tokens\*\*\s*\|\s*\*\*(\d+,?\d*)/);
+    let costMatch = content.match(/Cost\*\*\s*\|\s*\*\*\$([\d.]+)/);
+    // Fallback for phase-table format (TOTAL row): | **TOTAL** | — | ... | **X** | **$Y** |
     if (!totalMatch) {
       totalMatch = content.match(
-        /\*\*SUMA\*\*\s*\|[^|]*\|[^|]*\|[^|]*\|\s*\*\*([\d,]+)\*\*/,
+        /\*\*TOTAL\*\*\s*\|[^|]*\|[^|]*\|[^|]*\|\s*\*\*([\d,]+)\*\*/,
       );
     }
     if (!costMatch) {
       costMatch = content.match(
-        /\*\*SUMA\*\*\s*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|\s*\*\*\$([\d.]+)\*\*/,
+        /\*\*TOTAL\*\*\s*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|\s*\*\*\$([\d.]+)\*\*/,
       );
     }
     return {
@@ -157,20 +157,20 @@ export async function loadStepStats(
 }
 
 // ---------------------------------------------------------------------------
-// Centralna lista kroków prezentacji + helper ładujący statystyki
-// wszystkich kroków POPRZEDZAJĄCYCH bieżący numer.
+// Central list of presentation steps + helper that loads statistics
+// for all steps PRECEDING the current step number.
 // ---------------------------------------------------------------------------
 
 export const PRESENTATION_STEPS = [
-  { num: 1, dir: "step-01-no-optimization", name: "Step 01 (PL, brak opt.)" },
+  { num: 1, dir: "step-01-no-optimization", name: "Step 01 (PL, no opt.)" },
   { num: 2, dir: "step-02-english", name: "Step 02 (EN)" },
-  { num: 3, dir: "step-03-js-filtering", name: "Step 03 (JS filter wierszy)" },
+  { num: 3, dir: "step-03-js-filtering", name: "Step 03 (JS row filter)" },
   { num: 4, dir: "step-04-model-routing", name: "Step 04 (Model routing)" },
-  { num: 5, dir: "step-05-trim-columns", name: "Step 05 (Trim kolumn)" },
+  { num: 5, dir: "step-05-trim-columns", name: "Step 05 (Column trim)" },
   {
     num: 6,
     dir: "step-06-prompt-compression",
-    name: "Step 06 (Kompresja promptu)",
+    name: "Step 06 (Prompt compression)",
   },
   {
     num: 7,
@@ -178,7 +178,7 @@ export const PRESENTATION_STEPS = [
     name: "Step 07 (Pipe format)",
   },
   { num: 8, dir: "step-08-truncate-description", name: "Step 08 (Truncation)" },
-  { num: 9, dir: "step-09-local-model", name: "Step 09 (Lokalny model)" },
+  { num: 9, dir: "step-09-local-model", name: "Step 09 (Local model)" },
 ] as const;
 
 export async function loadStatsBefore(
@@ -197,7 +197,7 @@ export async function loadStatsBefore(
 }
 
 // ---------------------------------------------------------------------------
-// Obliczanie kosztu API
+// API cost calculation
 // ---------------------------------------------------------------------------
 
 export function calculateCost(
@@ -213,8 +213,8 @@ export function calculateCost(
 }
 
 // ---------------------------------------------------------------------------
-// Tabela porównawcza kroków (markdown rows)
-// Zwraca wiersze tabeli — bez nagłówka — gotowe do wklejenia w stats.md
+// Step comparison table (markdown rows)
+// Returns table rows — without header — ready to paste into stats.md
 // ---------------------------------------------------------------------------
 
 export function buildComparisonTable(
@@ -246,8 +246,8 @@ export function buildComparisonTable(
 }
 
 // ---------------------------------------------------------------------------
-// Mergowanie wyników routingu (faza 1 tania + faza 2 droga)
-// Zwraca finalną tablicę ticketów z polem `model` wskazującym który model klasyfikował
+// Merging routing results (phase 1 cheap + phase 2 expensive)
+// Returns the final array of tickets with a `model` field indicating which model classified them
 // ---------------------------------------------------------------------------
 
 export interface RoutedTicket {
@@ -282,11 +282,11 @@ export function mergeRoutedTickets(
 ): RoutedTicket[] {
   const expensiveIds = new Set(expensiveTickets.map((t) => t.ticket_id));
   return [
-    // Tickety z high confidence zostają z tanim modelem
+    // High-confidence tickets stay with the cheap model
     ...highConfidence.map((t) => ({ ...t, model: cheapModel })),
-    // Trudne tickety reklasyfikowane przez drogi model
+    // Difficult tickets reclassified by the expensive model
     ...expensiveTickets.map((t) => ({ ...t, model: expensiveModel })),
-    // Zabezpieczenie: low confidence tickety bez reklasyfikacji (nie powinno się zdarzyć)
+    // Safety net: low-confidence tickets without reclassification (should not happen)
     ...lowConfidence
       .filter((t) => !expensiveIds.has(t.ticket_id))
       .map((t) => ({ ...t, model: cheapModel })),
@@ -294,8 +294,8 @@ export function mergeRoutedTickets(
 }
 
 // ---------------------------------------------------------------------------
-// Formatowanie ticketów jako pipe-separated text (mniej tokenów niż JSON)
-// Używane w stepach 07, 08, 09
+// Format tickets as pipe-separated text (fewer tokens than JSON)
+// Used in steps 07, 08, 09
 // ---------------------------------------------------------------------------
 
 export function ticketsToPipeFormat(

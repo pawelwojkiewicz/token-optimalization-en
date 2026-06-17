@@ -1,14 +1,14 @@
 /**
- * STEP 02 — Język angielski
+ * STEP 02 — English language
  *
- * Optymalizacja: Prompt + dane w języku angielskim
- * (polskie znaki diakrytyczne = więcej tokenów)
+ * Optimization: Prompt + data in English
+ * (Polish diacritics = more tokens)
  *
- * Wszystko inne identyczne jak w step-01:
- * - Wysyłamy CAŁY CSV do modelu (wszystkie kolumny, wszystkie wiersze)
- * - Używamy drogiego modelu (gpt-5.5)
- * - Brak jakiegokolwiek filtrowania po stronie JS
- * - Jedno duże wywołanie API
+ * Everything else identical to step-01:
+ * - Send the ENTIRE CSV to the model (all columns, all rows)
+ * - Using the expensive model (gpt-5.5)
+ * - No JS-side filtering at all
+ * - Single large API call
  */
 
 import OpenAI from "openai";
@@ -30,7 +30,7 @@ const MODEL = "gpt-5.5";
 async function main() {
   const previousStats = await loadStatsBefore(2);
 
-  // 1. Wczytaj CAŁY plik CSV (angielska wersja) jako surowy tekst
+  // 1. Load the ENTIRE CSV file (English version) as raw text
   const csvPath = path.resolve(
     process.cwd(),
     "presentation/data/e-commerce-tickets-en.csv",
@@ -39,7 +39,7 @@ async function main() {
 
   const lineCount = csvContent.split("\n").filter((l) => l.trim()).length;
 
-  // 2. Prompt systemowy — po angielsku (wczytany z pliku)
+  // 2. System prompt — in English (loaded from file)
   const basePrompt = await readFile(
     path.resolve(process.cwd(), "presentation/prompts/system-prompt-en.md"),
     "utf8",
@@ -49,12 +49,12 @@ async function main() {
 IMPORTANT: Return ONLY tickets for products from the "Electronics" category (product_category column).
 Filter out all other product categories.`;
 
-  // 3. Wiadomość użytkownika — cały CSV bez żadnej obróbki
+  // 3. User message — entire CSV with no preprocessing
   const userMessage = `Here is a CSV file with customer support tickets. Analyze EVERY ticket, classify it (priority + sentiment), then return ONLY tickets with product_category "Electronics".
 
 ${csvContent}`;
 
-  // 4. Wywołanie API
+  // 4. API call
   const startTime = Date.now();
 
   const response = await client.chat.completions.create({
@@ -68,11 +68,11 @@ ${csvContent}`;
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
-  // 5. Parsowanie wyniku
+  // 5. Parse result
   const result = JSON.parse(response.choices[0]?.message?.content ?? "{}");
   const tickets = result.tickets ?? [];
 
-  // 5a. Zapis historii czatu
+  // 5a. Save chat history
   const outputDir = path.resolve(
     process.cwd(),
     "presentation/step-02-english/output",
@@ -99,7 +99,7 @@ ${csvContent}`;
     "utf8",
   );
 
-  // 6. Statystyki tokenów
+  // 6. Token statistics
   const {
     prompt_tokens: promptTokens,
     completion_tokens: completionTokens,
@@ -107,23 +107,23 @@ ${csvContent}`;
   } = response.usage!;
   const costUSD = calculateCost(MODEL, promptTokens, completionTokens);
 
-  // Tabela porównawcza z poprzednimi krokami
+  // Comparison table with previous steps
   const comparisonRows = buildComparisonTable(
     previousStats,
-    "Step 02 (obecne)",
+    "Step 02 (current)",
     totalTokens,
     costUSD,
   );
 
-  // 6a. Porównanie z plikiem referencyjnym (EN: "Electronics")
+  // 6a. Comparison with reference file (EN: "Electronics")
   const comparisonSection = await buildRefComparisonSection(
     tickets,
     "presentation/data/categorized_by_gpt_5_5_high_thinking_en.json",
   );
 
-  // 6b. Zapis stats.md
+  // 6b. Save stats.md
   const statsMarkdown =
-    `# Step 02 — Angielski prompt\n\n## Parametry\n- **Model:** ${MODEL}\n- **Język promptu:** Angielski\n- **Optymalizacja:** Zamiana języka PL → EN (mniej tokenów)\n- **Ticketów w CSV:** ${lineCount}\n- **Zwróconych (Electronics):** ${tickets.length}\n\n## Zużycie tokenów\n| Metryka | Wartość |\n|---------|---------|\n| Prompt tokens | ${promptTokens.toLocaleString()} |\n| Completion tokens | ${completionTokens.toLocaleString()} |\n| **TOTAL tokens** | **${totalTokens.toLocaleString()}** |\n| **Koszt** | **$${costUSD.toFixed(4)}** |\n\n## Porównanie z poprzednimi krokami\n| Krok | Tokeny | Koszt | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |\n|------|--------|-------|----------------|----------------|\n${comparisonRows}\n\n## Czas odpowiedzi\n${elapsed}s\n` +
+    `# Step 02 \u2014 English prompt\n\n## Parameters\n- **Model:** ${MODEL}\n- **Prompt language:** English\n- **Optimization:** Language switch PL \u2192 EN (fewer tokens)\n- **Tickets in CSV:** ${lineCount}\n- **Returned (Electronics):** ${tickets.length}\n\n## Token usage\n| Metric | Value |\n|--------|-------|\n| Prompt tokens | ${promptTokens.toLocaleString()} |\n| Completion tokens | ${completionTokens.toLocaleString()} |\n| **TOTAL tokens** | **${totalTokens.toLocaleString()}** |\n| **Cost** | **$${costUSD.toFixed(4)}** |\n\n## Comparison with previous steps\n| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |\n|------|--------|------|------------------------|----------------------|\n${comparisonRows}\n\n## Response time\n${elapsed}s\n` +
     comparisonSection;
 
   await writeFile(path.join(outputDir, "stats.md"), statsMarkdown, "utf8");

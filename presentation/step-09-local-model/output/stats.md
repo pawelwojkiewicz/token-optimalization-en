@@ -1,68 +1,68 @@
-# Step 09 — Lokalny model zamiast API (LM Studio)
+# Step 09 — Local model instead of API (LM Studio)
 
-## Parametry
+## Parameters
 
-- **Lokalny model (faza 1):** google/gemma-4-e4b @ LM Studio (koszt: $0)
-- **Drogi model (fallback):** gpt-5.5
-- **Język promptu:** Angielski (skompresowany)
-- **Optymalizacje:** JS filter + EN + Model Routing + Trim kolumn + Kompresja promptu + Pipe format + Truncation + Lokalny model
-- **Ticketów Electronics:** 19
-- **High confidence (lokalny model):** 19
-- **Low confidence (→ drogi model):** 0
+- **Local model (phase 1):** google/gemma-4-e4b @ LM Studio (cost: $0)
+- **Expensive model (fallback):** gpt-5.5
+- **Prompt language:** English (compressed)
+- **Optimizations:** JS filter + EN + Model Routing + Column trim + Prompt compression + Pipe format + Truncation + Local model
+- **Electronics tickets:** 19
+- **High confidence (local model):** 19
+- **Low confidence (→ expensive model):** 0
 
-## Obcinanie opisów
+## Description truncation
 
-- **Limit:** 150 znaków
-- **Obciętych opisów:** 0/19
-- **Średnia długość przed:** 242 znaków
-- **Średnia długość po:** 242 znaków
+- **Limit:** 150 characters
+- **Truncated descriptions:** 0/19
+- **Average length before:** 242 characters
+- **Average length after:** 242 characters
 
-## Format danych (pipe)
+## Data format (pipe)
 
-- **JSON:** 6687 znaków
-- **Pipe-separated:** 5422 znaków (19% mniej)
+- **JSON:** 6687 characters
+- **Pipe-separated:** 5422 characters (19% less)
 
-## Zużycie tokenów
+## Token usage
 
-| Faza     | Model                        | Prompt | Completion | Total     | Koszt       |
+| Phase    | Model                        | Prompt | Completion | Total     | Cost        |
 | -------- | ---------------------------- | ------ | ---------- | --------- | ----------- |
-| Faza 1   | google/gemma-4-e4b (lokalny) | 3,749  | 1,810      | 5,559     | $0.0000     |
-| Faza 2   | gpt-5.5                      | 0      | 0          | 0         | $0.0000     |
-| **SUMA** | —                            | 3,749  | 1,810      | **5,559** | **$0.0000** |
+| Phase 1  | google/gemma-4-e4b (local)   | 3,749  | 1,810      | 5,559     | $0.0000     |
+| Phase 2  | gpt-5.5                      | 0      | 0          | 0         | $0.0000     |
+| **TOTAL** | —                           | 3,749  | 1,810      | **5,559** | **$0.0000** |
 
-## Porównanie z poprzednimi krokami
+## Comparison with previous steps
 
-| Krok                        | Tokeny    | Koszt       | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |
-| --------------------------- | --------- | ----------- | ------------------------ | ------------------------ |
-| Step 01 (PL, brak opt.)     | 12,875    | $0.1611     | — (baseline)             | — (baseline)             |
-| Step 02 (EN)                | 10,074    | $0.1338     | 2,801 (21.8%)            | $0.0273 (16.9%)          |
-| Step 03 (JS filter wierszy) | 4,447     | $0.0861     | 5,627 (55.9%)            | $0.0477 (35.7%)          |
-| Step 04 (Model routing)     | 10,814    | $0.0131     | -6,367 (-143.2%)         | $0.0730 (84.8%)          |
-| Step 05 (Trim kolumn)       | 2,854     | $0.0018     | 7,960 (73.6%)            | $0.0113 (86.3%)          |
-| Step 06 (Kompresja promptu) | 2,504     | $0.0016     | 350 (12.3%)              | $0.0002 (11.1%)          |
-| Step 07 (Pipe format)       | 2,156     | $0.0015     | 348 (13.9%)              | $0.0001 (6.3%)           |
-| Step 08 (Truncation)        | 1,808     | $0.0013     | 348 (16.1%)              | $0.0002 (13.3%)          |
-| **Step 09 (obecne)**        | **5,559** | **$0.0000** | -3,751 (-207.5%)         | $0.0013 (100.0%)         |
+| Step                        | Tokens    | Cost        | Token savings vs prev. | Cost savings vs prev. |
+| --------------------------- | --------- | ----------- | ---------------------- | --------------------- |
+| Step 01 (PL, no opt.)       | 12,875    | $0.1611     | — (baseline)           | — (baseline)          |
+| Step 02 (EN)                | 10,074    | $0.1338     | 2,801 (21.8%)          | $0.0273 (16.9%)       |
+| Step 03 (JS row filter)     | 4,447     | $0.0861     | 5,627 (55.9%)          | $0.0477 (35.7%)       |
+| Step 04 (Model routing)     | 10,814    | $0.0131     | -6,367 (-143.2%)       | $0.0730 (84.8%)       |
+| Step 05 (Column trim)       | 2,854     | $0.0018     | 7,960 (73.6%)          | $0.0113 (86.3%)       |
+| Step 06 (Prompt compression) | 2,504    | $0.0016     | 350 (12.3%)            | $0.0002 (11.1%)       |
+| Step 07 (Pipe format)       | 2,156     | $0.0015     | 348 (13.9%)            | $0.0001 (6.3%)        |
+| Step 08 (Truncation)        | 1,808     | $0.0013     | 348 (16.1%)            | $0.0002 (13.3%)       |
+| **Step 09 (current)**       | **5,559** | **$0.0000** | -3,751 (-207.5%)       | $0.0013 (100.0%)      |
 
-## Czas odpowiedzi
+## Response time
 
-- Faza 1: 63.3s
-- Faza 2: 0s
-- **Łącznie:** 63.3s
+- Phase 1: 63.3s
+- Phase 2: 0s
+- **Total:** 63.3s
 
-## Porównanie z plikiem referencyjnym
+## Comparison with reference file
 
-- **Tickety referencyjne (Electronics):** 19
-- **Tickety zwrócone przez model:** 19
+- **Reference tickets (Electronics):** 19
+- **Tickets returned by model:** 19
 
-⚠️ **Pokrycie: 12/19 ticketów zgodnych w 100%**
+⚠️ **Coverage: 12/19 tickets matching 100%**
 
-### Różnice w klasyfikacji (ticket_id: pole: ref vs wynik)
+### Classification differences (ticket_id: field: ref vs result)
 
-- **T-1010**: priority: ref=`medium` vs wynik=`high`, sentiment: ref=`neutral` vs wynik=`negative`
-- **T-1033**: priority: ref=`high` vs wynik=`critical`
-- **T-1073**: priority: ref=`high` vs wynik=`critical`
-- **T-1074**: priority: ref=`low` vs wynik=`medium`
-- **T-1081**: sentiment: ref=`neutral` vs wynik=`negative`
-- **T-1113**: priority: ref=`low` vs wynik=`medium`
-- **T-1155**: sentiment: ref=`neutral` vs wynik=`negative`
+- **T-1010**: priority: ref=`medium` vs result=`high`, sentiment: ref=`neutral` vs result=`negative`
+- **T-1033**: priority: ref=`high` vs result=`critical`
+- **T-1073**: priority: ref=`high` vs result=`critical`
+- **T-1074**: priority: ref=`low` vs result=`medium`
+- **T-1081**: sentiment: ref=`neutral` vs result=`negative`
+- **T-1113**: priority: ref=`low` vs result=`medium`
+- **T-1155**: sentiment: ref=`neutral` vs result=`negative`

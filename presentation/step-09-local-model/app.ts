@@ -1,23 +1,23 @@
 /**
- * STEP 09 — Lokalny model (LM Studio)
+ * STEP 09 — Local model (LM Studio)
  *
- * Zawiera optymalizacje z poprzednich kroków:
- * - Angielski prompt (step-02)
- * - JS filtruje wiersze po product_category (step-03)
- * - Model routing: tani + drogi model (step-04)
- * - Trim kolumn: tylko ticket_id, subject, description (step-05)
- * - Kompresja promptu (step-06)
+ * Includes optimizations from previous steps:
+ * - English prompt (step-02)
+ * - JS filters rows by product_category (step-03)
+ * - Model routing: cheap + expensive model (step-04)
+ * - Column trim: only ticket_id, subject, description (step-05)
+ * - Prompt compression (step-06)
  * - Pipe-separated format (step-07)
- * - Obcinanie opisów (step-08)
+ * - Description truncation (step-08)
  *
- * Nowa optymalizacja:
- * - Zastąpienie taniego płatnego modelu (gpt-4o-mini) lokalnym modelem przez LM Studio
- * - Lokalny model jest DARMOWY — faza 1 nie kosztuje nic
- * - Trade-off: wolniejsze przetwarzanie, model mniej precyzyjny
- * - Faza 2 nadal używa gpt-5.5 dla low-confidence ticketów
+ * New optimization:
+ * - Replace the cheap paid model (gpt-4o-mini) with a local model via LM Studio
+ * - Local model is FREE — phase 1 costs nothing
+ * - Trade-off: slower processing, less precise model
+ * - Phase 2 still uses gpt-5.5 for low-confidence tickets
  *
- * Uwaga: wymaga uruchomionego LM Studio z modelem google/gemma-4-e4b
- * pod adresem http://localhost:1234/v1
+ * Note: requires LM Studio running with the qwen/qwen3-30b-a3b model
+ * at http://localhost:1234/v1
  */
 
 import OpenAI from "openai";
@@ -35,22 +35,22 @@ import {
 } from "../shared/helpers.js";
 import { TICKET_CLASSIFICATION_SCHEMA } from "../shared/schemas.js";
 
-// Klient do gpt-5.5 (fallback dla low confidence)
+// Client for gpt-5.5 (fallback for low confidence)
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Klient do lokalnego modelu przez LM Studio
+// Client for the local model via LM Studio
 const localClient = new OpenAI({
   apiKey: "lm-studio",
   baseURL: "http://localhost:1234/v1",
 });
 
-const LOCAL_MODEL = "google/gemma-4-e4b";
+const LOCAL_MODEL = "qwen/qwen3-30b-a3b";
 const EXPENSIVE_MODEL = "gpt-5.5";
 
 async function main() {
   const previousStats = await loadStatsBefore(9);
 
-  // 1. Wczytaj CSV + JS filtrowanie + trim kolumn
+  // 1. Load CSV + JS filtering + column trim
   const csvPath = path.resolve(
     process.cwd(),
     "presentation/data/e-commerce-tickets-en.csv",
@@ -71,10 +71,10 @@ async function main() {
     description: row.description,
   }));
 
-  // 2. Konwersja do pipe-separated format (z step-07)
+  // 2. Convert to pipe-separated format (from step-07)
   const pipeFormat = ticketsToPipeFormat(ticketsForModel);
 
-  // 3. Wczytaj skompresowany prompt
+  // 3. Load compressed prompt
   const compressedPrompt = await readFile(
     path.resolve(
       process.cwd(),
@@ -83,11 +83,11 @@ async function main() {
     "utf8",
   );
 
-  // 4. FAZA 1 — ✅ NOWA OPTYMALIZACJA: Lokalny model, każdy ticket osobno
-  //    Lokalny model nie obsługuje response_format niezawodnie, więc:
-  //    - Wysyłamy krótki prompt proszący o JSON
-  //    - Czyścimy odpowiedź ze znaczników <think> i code fences
-  //    - W razie błędu parsowania dodajemy z confidence="normal" (→ do fazy 2)
+  // 4. PHASE 1 — ✅ NEW OPTIMIZATION: Local model, one ticket at a time
+  //    Local model doesn’t reliably support response_format, so:
+  //    - We send a short prompt asking for JSON
+  //    - We strip <think> tags and code fences from the response
+  //    - On parse error, add with confidence="normal" (→ to phase 2)
   const localSystemPrompt = `You are a ticket classifier. For each ticket, return ONLY a JSON object (no markdown, no explanation):
 {"ticket_id": "...", "product_category": "Electronics", "priority": "low|medium|high|critical", "sentiment": "positive|neutral|negative", "confidence": "high|normal|low"}`;
 
@@ -114,11 +114,11 @@ description: ${ticket.description}`;
     process.stdout.write(".");
 
     const rawContent = localResponse.choices[0]?.message?.content ?? "";
-    // Usuń bloki <think>...</think> (modele CoT)
+    // Remove <think>...</think> blocks (CoT models)
     const withoutThink = rawContent
       .replace(/<think>[\s\S]*?<\/think>/g, "")
       .trim();
-    // Usuń code fences jeśli są
+    // Remove code fences if present
     const cleaned = withoutThink
       .replace(/^```(?:json)?\n?/, "")
       .replace(/\n?```$/, "")
@@ -133,7 +133,7 @@ description: ${ticket.description}`;
       const parsed = JSON.parse(cleaned);
       localTickets.push(parsed);
     } catch {
-      // Błąd parsowania — dodaj z confidence="normal" żeby faza 2 rozpatrzyła
+      // Parse error — add with confidence="normal" so phase 2 handles it
       localTickets.push({ ticket_id: ticket.ticket_id, confidence: "normal" });
     }
   }
@@ -142,18 +142,18 @@ description: ${ticket.description}`;
 
   const elapsedPhase1 = ((Date.now() - startPhase1) / 1000).toFixed(1);
 
-  // Lokalny model jest darmowy — koszt 0
+  // Local model is free — cost 0
   const localCost = 0;
 
   const highConfidence = localTickets.filter(
     (t: any) => t.confidence === "high",
   );
-  // confidence "normal" i "low" idą do fazy 2
+  // confidence "normal" and "low" go to phase 2
   const lowConfidence = localTickets.filter(
     (t: any) => t.confidence === "low" || t.confidence === "normal",
   );
 
-  // 5. FAZA 2 — Drogi model TYLKO dla low/normal confidence (jeśli są)
+  // 5. PHASE 2 — Expensive model ONLY for low/normal confidence (if any)
   let expensiveCost = 0;
   let expensiveUsage = {
     prompt_tokens: 0,
@@ -206,7 +206,7 @@ ${pipeForExpensive}`;
     );
   }
 
-  // 6. Merge wyników
+  // 6. Merge results
   const finalTickets = mergeRoutedTickets(
     highConfidence,
     expensiveTickets,
@@ -215,8 +215,8 @@ ${pipeForExpensive}`;
     EXPENSIVE_MODEL,
   );
 
-  // 7. Sumaryczne statystyki
-  // Faza 1 (lokalny) ma koszt = 0
+  // 7. Summary statistics
+  // Phase 1 (local) has cost = 0
   const totalPromptTokens =
     localTotalPromptTokens + expensiveUsage.prompt_tokens;
   const totalCompletionTokens =
@@ -227,7 +227,7 @@ ${pipeForExpensive}`;
     parseFloat(elapsedPhase1) + parseFloat(elapsedPhase2)
   ).toFixed(1);
 
-  // 8. Zapis historii
+  // 8. Save history
   const outputDir = path.resolve(
     process.cwd(),
     "presentation/step-09-local-model/output",
@@ -239,7 +239,7 @@ ${pipeForExpensive}`;
     JSON.stringify(
       {
         timestamp: new Date().toISOString(),
-        optimization: `Lokalny model: ${LOCAL_MODEL} (faza 1, koszt = 0) + ${EXPENSIVE_MODEL} (faza 2)`,
+        optimization: `Local model: ${LOCAL_MODEL} (phase 1, cost = 0) + ${EXPENSIVE_MODEL} (phase 2)`,
         routing: {
           localModel: LOCAL_MODEL,
           expensiveModel: EXPENSIVE_MODEL,
@@ -273,17 +273,17 @@ ${pipeForExpensive}`;
     "utf8",
   );
 
-  // 9. Tabela porównawcza z poprzednimi krokami
+  // 9. Comparison table with previous steps
   const comparisonRows = buildComparisonTable(
     previousStats,
-    "Step 09 (obecne)",
+    "Step 09 (current)",
     totalTokens,
     totalCost,
   );
 
-  // 9a. Zapis stats.md
+  // 9a. Save stats.md
   const statsMarkdown =
-    `# Step 09 — Lokalny model (LM Studio)\n\n## Parametry\n- **Lokalny model (faza 1):** ${LOCAL_MODEL} (LM Studio)\n- **Drogi model (faza 2):** ${EXPENSIVE_MODEL}\n- **Język promptu:** Angielski (skompresowany)\n- **Optymalizacje:** JS filter + EN + Model Routing + Trim kolumn + Kompresja promptu + Pipe format + Lokalny model\n- **Ticketów Electronics:** ${ticketsForModel.length}\n- **High confidence (lokalny model):** ${highConfidence.length}\n- **Low/Normal confidence (→ drogi model):** ${lowConfidence.length}\n\n## Koszt\n- **Faza 1 (lokalny model):** $0.0000 (darmowy!)\n- **Faza 2 (${EXPENSIVE_MODEL}):** $${expensiveCost.toFixed(4)}\n- **Łącznie:** $${totalCost.toFixed(4)}\n\n## Zużycie tokenów (lokalny model zlicza, ale nie kosztuje)\n| Faza | Model | Prompt | Completion | Total | Koszt |\n|------|-------|--------|------------|-------|-------|\n| Faza 1 | ${LOCAL_MODEL} | ${localTotalPromptTokens.toLocaleString()} | ${localTotalCompletionTokens.toLocaleString()} | ${(localTotalPromptTokens + localTotalCompletionTokens).toLocaleString()} | $0.0000 |\n| Faza 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **SUMA** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Porównanie z poprzednimi krokami\n| Krok | Tokeny | Koszt | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |\n|------|--------|-------|----------------|----------------|\n${comparisonRows}\n\n## Czas odpowiedzi\n- Faza 1: ${elapsedPhase1}s (lokalny model, każdy ticket osobno)\n- Faza 2: ${elapsedPhase2}s\n- **Łącznie:** ${totalElapsed}s\n\n## Jak działa lokalny model\n- Każdy ticket wysyłany osobno (brak response_format)\n- Odpowiedź oczyszczana ze znaczników <think> i code fences\n- Błąd parsowania = confidence "normal" → faza 2\n- Darmowy, ale wolniejszy od API\n` +
+    `# Step 09 — Local model (LM Studio)\n\n## Parameters\n- **Local model (phase 1):** ${LOCAL_MODEL} (LM Studio)\n- **Expensive model (phase 2):** ${EXPENSIVE_MODEL}\n- **Prompt language:** English (compressed)\n- **Optimizations:** JS filter + EN + Model Routing + Column trim + Prompt compression + Pipe format + Local model\n- **Electronics tickets:** ${ticketsForModel.length}\n- **High confidence (local model):** ${highConfidence.length}\n- **Low/Normal confidence (→ expensive model):** ${lowConfidence.length}\n\n## Cost\n- **Phase 1 (local model):** $0.0000 (free!)\n- **Phase 2 (${EXPENSIVE_MODEL}):** $${expensiveCost.toFixed(4)}\n- **Total:** $${totalCost.toFixed(4)}\n\n## Token usage (local model counts tokens but they cost nothing)\n| Phase | Model | Prompt | Completion | Total | Cost |\n|-------|-------|--------|------------|-------|------|\n| Phase 1 | ${LOCAL_MODEL} | ${localTotalPromptTokens.toLocaleString()} | ${localTotalCompletionTokens.toLocaleString()} | ${(localTotalPromptTokens + localTotalCompletionTokens).toLocaleString()} | $0.0000 |\n| Phase 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **TOTAL** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Comparison with previous steps\n| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |\n|------|--------|------|------------------------|----------------------|\n${comparisonRows}\n\n## Response time\n- Phase 1: ${elapsedPhase1}s (local model, one ticket at a time)\n- Phase 2: ${elapsedPhase2}s\n- **Total:** ${totalElapsed}s\n\n## How the local model works\n- Each ticket sent individually (no response_format)\n- Response cleaned of <think> tags and code fences\n- Parse error = confidence "normal" → goes to phase 2\n` + +
     (await buildRefComparisonSection(
       finalTickets,
       "presentation/data/categorized_by_gpt_5_5_high_thinking_en.json",

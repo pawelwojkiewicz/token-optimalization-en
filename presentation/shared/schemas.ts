@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------
-// Wspólne JSON schematy dla response_format w OpenAI API
+// Shared JSON schemas for response_format in OpenAI API
 // ---------------------------------------------------------------------------
 
-// Confidence zawsze obecne — "high" zostaje z tanim modelem, "low, "medium" idzie do drogiego
+// Confidence is always present — "high" stays with the cheap model, "low"/"medium" goes to the expensive one
 export const TICKET_CLASSIFICATION_SCHEMA = {
   type: "json_schema" as const,
   json_schema: {

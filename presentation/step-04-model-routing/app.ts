@@ -1,16 +1,16 @@
 /**
- * STEP 04 — Model Routing (tani model + drogi model na trudne przypadki)
+ * STEP 04 — Model Routing (cheap model + expensive model for hard cases)
  *
- * Zawiera optymalizacje z poprzednich kroków:
- * - Angielski prompt (step-02)
- * - JS filtruje CSV po product_category (step-03)
+ * Includes optimizations from previous steps:
+ * - English prompt (step-02)
+ * - JS filters CSV by product_category (step-03)
  *
- * Nowa optymalizacja:
- * - Tani model (gpt-4o-mini) klasyfikuje WSZYSTKIE tickety + zwraca confidence
- * - Tylko tickety z confidence="medium" lub "low" trafiają do drogiego modelu (gpt-5.5)
- * - Reszta (confidence="high") zostaje z wynikami taniego modelu
+ * New optimization:
+ * - Cheap model (gpt-4o-mini) classifies ALL tickets + returns confidence
+ * - Only tickets with confidence="medium" or "low" go to the expensive model (gpt-5.5)
+ * - The rest (confidence="high") keep the cheap model results
  *
- * Efekt: Większość ticketów kosztuje ~25x mniej (gpt-4o-mini vs gpt-5.5)
+ * Effect: Most tickets cost ~25x less (gpt-4o-mini vs gpt-5.5)
  */
 
 import OpenAI from "openai";
@@ -29,7 +29,7 @@ import { TICKET_CLASSIFICATION_SCHEMA } from "../shared/schemas.js";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-//✅ 1. Parametry modeli
+//✅ 1. Model parameters
 const CHEAP_MODEL = "gpt-4o-mini";
 const EXPENSIVE_MODEL = "gpt-5.5";
 const PHASE1_BATCH_SIZE = Number(process.env.LOCAL_CHEAP_BATCH_SIZE ?? "3");
@@ -56,8 +56,8 @@ async function main() {
     "utf8",
   );
 
-  //✅ 2.FAZA 1 — Tani model klasyfikuje WSZYSTKO + confidence
-  // confidence: "high" = pewny, "medium" = niejednoznaczny, "low" = bardzo niejednoznaczny
+  //✅ 2. PHASE 1 — Cheap model classifies EVERYTHING + confidence
+  // confidence: "high" = certain, "medium" = ambiguous, "low" = very ambiguous
   const systemPromptCheap =
     basePrompt +
     `
@@ -79,7 +79,7 @@ Be conservative — when in doubt between high and medium, choose medium.`;
 
 ${JSON.stringify(batch, null, 2)}`;
 
-    //✅ 3. Definiujemy tani model z odpowiednim promptem (dodajemy instrukcje dotyczące confidence)
+    //✅ 3. Define cheap model with appropriate prompt (add confidence instructions)
     const responseCheap = await client.chat.completions.create({
       model: CHEAP_MODEL,
       response_format: TICKET_CLASSIFICATION_SCHEMA,
@@ -115,7 +115,7 @@ ${JSON.stringify(batch, null, 2)}`;
     cheapUsage.completion_tokens,
   );
 
-  // ✅ 3. Tylko "high" confidence zostaje z tanim modelem; "medium" i "low" idą do drogiego
+  // ✅ 3. Only "high" confidence stays with the cheap model; "medium" and "low" go to the expensive one
   const highConfidence = cheapTickets.filter(
     (t: any) => t.confidence === "high",
   );
@@ -138,7 +138,7 @@ ${JSON.stringify(batch, null, 2)}`;
       lowIds.includes(t.ticket_id),
     );
 
-    //✅ 4. Definicja drogiego modelu i wywołanie API tylko na "medium"/"low confidence"
+    //✅ 4. Define expensive model and call API only for "medium"/"low confidence"
 
     const systemPromptExpensive = `${basePrompt}
 
@@ -172,7 +172,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     );
   }
 
-  // ✅ 5. Merge wyników z obu modeli (pokaz chat-history.json)
+  // ✅ 5. Merge results from both models (shown in chat-history.json)
   const finalTickets = mergeRoutedTickets(
     highConfidence,
     expensiveTickets,
@@ -181,7 +181,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     EXPENSIVE_MODEL,
   );
 
-  // 6. Sumaryczne statystyki
+  // 6. Summary statistics
   const totalPromptTokens =
     cheapUsage.prompt_tokens + expensiveUsage.prompt_tokens;
   const totalCompletionTokens =
@@ -192,7 +192,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     parseFloat(elapsedPhase1) + parseFloat(elapsedPhase2)
   ).toFixed(1);
 
-  // 7. Zapis historii
+  // 7. Save history
   const outputDir = path.resolve(
     process.cwd(),
     "presentation/step-04-model-routing/output",
@@ -238,17 +238,17 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     "utf8",
   );
 
-  // 8. Tabela porównawcza z poprzednimi krokami
+  // 8. Comparison table with previous steps
   const comparisonRows = buildComparisonTable(
     previousStats,
-    "Step 04 (obecne)",
+    "Step 04 (current)",
     totalTokens,
     totalCost,
   );
 
-  // 8a. Zapis stats.md
+  // 8a. Save stats.md
   const statsMarkdown =
-    `# Step 04 — Model Routing\n\n## Parametry\n- **Tani model:** ${CHEAP_MODEL}\n- **Drogi model:** ${EXPENSIVE_MODEL}\n- **Język promptu:** Angielski\n- **Optymalizacje:** JS filtering + EN + Model Routing\n- **Ticketów Electronics:** ${electronicsTickets.length}\n- **High confidence (tani model):** ${highConfidence.length}\n- **Medium/Low confidence (→ drogi model):** ${lowConfidence.length}\n\n## Zużycie tokenów\n| Faza | Model | Prompt | Completion | Total | Koszt |\n|------|-------|--------|------------|-------|-------|\n| Faza 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Faza 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **SUMA** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Porównanie z poprzednimi krokami\n| Krok | Tokeny | Koszt | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |\n|------|--------|-------|----------------|----------------|\n${comparisonRows}\n\n## Czas odpowiedzi\n- Faza 1: ${elapsedPhase1}s\n- Faza 2: ${elapsedPhase2}s\n- **Łącznie:** ${totalElapsed}s\n\n## Jak to działa\n1. Tani model (${CHEAP_MODEL}) klasyfikuje WSZYSTKIE tickety + zwraca confidence\n2. Tickety z confidence="high" → wynik końcowy (tanio!)\n3. Tickety z confidence="medium"/"low" → reklasyfikacja drogim modelem (${EXPENSIVE_MODEL})\n4. Merge wyników\n` +
+    `# Step 04 — Model Routing\n\n## Parameters\n- **Cheap model:** ${CHEAP_MODEL}\n- **Expensive model:** ${EXPENSIVE_MODEL}\n- **Prompt language:** English\n- **Optimizations:** JS filtering + EN + Model Routing\n- **Electronics tickets:** ${electronicsTickets.length}\n- **High confidence (cheap model):** ${highConfidence.length}\n- **Medium/Low confidence (→ expensive model):** ${lowConfidence.length}\n\n## Token usage\n| Phase | Model | Prompt | Completion | Total | Cost |\n|-------|-------|--------|------------|-------|------|\n| Phase 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Phase 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **TOTAL** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Comparison with previous steps\n| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |\n|------|--------|------|------------------------|----------------------|\n${comparisonRows}\n\n## Response time\n- Phase 1: ${elapsedPhase1}s\n- Phase 2: ${elapsedPhase2}s\n- **Total:** ${totalElapsed}s\n\n## How it works\n1. Cheap model (${CHEAP_MODEL}) classifies ALL tickets + returns confidence\n2. Tickets with confidence="high" → final result (cheap!)\n3. Tickets with confidence="medium"/"low" → reclassified by expensive model (${EXPENSIVE_MODEL})\n4. Merge results\n` +
     (await buildRefComparisonSection(
       finalTickets,
       "presentation/data/categorized_by_gpt_5_5_high_thinking_en.json",

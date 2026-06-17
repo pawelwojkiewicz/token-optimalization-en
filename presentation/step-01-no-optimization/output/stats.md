@@ -1,25 +1,25 @@
-# Step 01 — Brak optymalizacji
+# Step 01 — No optimization
 
-## Parametry
+## Parameters
 - **Model:** gpt-5.5
-- **Język promptu:** Polski
-- **Optymalizacje:** BRAK
-- **Ticketów w CSV:** 51
-- **Zwróconych (Elektronika):** 19
+- **Prompt language:** Polish
+- **Optimizations:** NONE
+- **Tickets in CSV:** 51
+- **Returned (Electronics):** 19
 
-## Zużycie tokenów
-| Metryka | Wartość |
-|---------|---------|
+## Token usage
+| Metric | Value |
+|--------|-------|
 | Prompt tokens | 9,068 |
 | Completion tokens | 1,782 |
 | **TOTAL tokens** | **10,850** |
-| **Koszt** | **$0.0988** |
+| **Cost** | **$0.0988** |
 
-## Czas odpowiedzi
+## Response time
 31.9s
 
-## Porównanie z plikiem referencyjnym
-- **Tickety referencyjne (Elektronika):** 19
-- **Tickety zwrócone przez model:** 19
+## Comparison with reference file
+- **Reference tickets (Electronics):** 19
+- **Tickets returned by model:** 19
 
-✅ **Dane idealnie się pokrywają!** Wszystkie 19 ticketów zgadza się co do ticket_id, priority i sentiment.
+✅ **Data matches perfectly!** All 19 tickets agree on ticket_id, priority and sentiment.

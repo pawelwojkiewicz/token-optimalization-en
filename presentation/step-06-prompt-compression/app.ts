@@ -1,16 +1,16 @@
 /**
- * STEP 06 — Kompresja promptu (skrócony system prompt)
+ * STEP 06 — Prompt compression (shorter system prompt)
  *
- * Zawiera optymalizacje z poprzednich kroków:
- * - Angielski prompt (step-02)
- * - JS filtruje wiersze po product_category (step-03)
- * - Model routing: tani + drogi model (step-04)
- * - Trim kolumn: tylko ticket_id, subject, description (step-05)
+ * Includes optimizations from previous steps:
+ * - English prompt (step-02)
+ * - JS filters rows by product_category (step-03)
+ * - Model routing: cheap + expensive model (step-04)
+ * - Column trim: only ticket_id, subject, description (step-05)
  *
- * Nowa optymalizacja:
- * - System prompt skompresowany z ~700 tokenów do ~200 tokenów
- * - Te same reguły klasyfikacji, mniej słów
- * - Mniej input tokenów = niższy koszt
+ * New optimization:
+ * - System prompt compressed from ~700 tokens to ~200 tokens
+ * - Same classification rules, fewer words
+ * - Fewer input tokens = lower cost
  */
 
 import OpenAI from "openai";
@@ -35,7 +35,7 @@ const EXPENSIVE_MODEL = "gpt-5.5";
 async function main() {
   const previousStats = await loadStatsBefore(6);
 
-  // 1. Wczytaj CSV + JS filtrowanie + trim kolumn
+  // 1. Load CSV + JS filtering + column trim
   const csvPath = path.resolve(
     process.cwd(),
     "presentation/data/e-commerce-tickets-en.csv",
@@ -56,7 +56,7 @@ async function main() {
     description: row.description,
   }));
 
-  // 2. ✅ NOWA OPTYMALIZACJA: Wczytaj skompresowany prompt zamiast pełnego
+  // 2. ✅ NEW OPTIMIZATION: Load compressed prompt instead of full prompt
   const fullPrompt = await readFile(
     path.resolve(process.cwd(), "presentation/prompts/system-prompt-en.md"),
     "utf8",
@@ -109,7 +109,7 @@ ${JSON.stringify(ticketsForModel, null, 2)}`;
   );
   const lowConfidence = cheapTickets.filter((t: any) => t.confidence === "low");
 
-  // 4. FAZA 2 — Drogi model TYLKO dla low confidence (jeśli są)
+  // 4. PHASE 2 — Expensive model ONLY for low confidence (if any)
   let expensiveCost = 0;
   let expensiveUsage = {
     prompt_tokens: 0,
@@ -157,7 +157,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     );
   }
 
-  // 5. Merge wyników
+  // 5. Merge results
   const finalTickets = mergeRoutedTickets(
     highConfidence,
     expensiveTickets,
@@ -166,7 +166,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     EXPENSIVE_MODEL,
   );
 
-  // 6. Sumaryczne statystyki
+  // 6. Summary statistics
   const totalPromptTokens =
     cheapUsage.prompt_tokens + expensiveUsage.prompt_tokens;
   const totalCompletionTokens =
@@ -177,7 +177,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     parseFloat(elapsedPhase1) + parseFloat(elapsedPhase2)
   ).toFixed(1);
 
-  // 7. Zapis historii
+  // 7. Save history
   const outputDir = path.resolve(
     process.cwd(),
     "presentation/step-06-prompt-compression/output",
@@ -189,7 +189,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     JSON.stringify(
       {
         timestamp: new Date().toISOString(),
-        optimization: `Prompt compression: system prompt skrócony z ${fullPromptChars} do ${compressedChars} znaków (${compressionPct}% mniej)`,
+        optimization: `Prompt compression: system prompt shortened from ${fullPromptChars} to ${compressedChars} characters (${compressionPct}% less)`,
         routing: {
           cheapModel: CHEAP_MODEL,
           expensiveModel: EXPENSIVE_MODEL,
@@ -218,17 +218,17 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     "utf8",
   );
 
-  // 8. Tabela porównawcza z poprzednimi krokami
+  // 8. Comparison table with previous steps
   const comparisonRows = buildComparisonTable(
     previousStats,
-    "Step 06 (obecne)",
+    "Step 06 (current)",
     totalTokens,
     totalCost,
   );
 
-  // 8a. Zapis stats.md
+  // 8a. Save stats.md
   const statsMarkdown =
-    `# Step 06 — Kompresja promptu\n\n## Parametry\n- **Tani model:** ${CHEAP_MODEL}\n- **Drogi model:** ${EXPENSIVE_MODEL}\n- **Język promptu:** Angielski (skompresowany)\n- **Optymalizacje:** JS filter wierszy + EN + Model Routing + Trim kolumn + Kompresja promptu\n- **Ticketów Electronics:** ${ticketsForModel.length}\n- **High confidence (tani model):** ${highConfidence.length}\n- **Low confidence (→ drogi model):** ${lowConfidence.length}\n\n## Kompresja promptu\n- **Oryginalny prompt:** ${fullPromptChars} znaków\n- **Skompresowany prompt:** ${compressedChars} znaków (${compressionPct}% mniej)\n\n## Zużycie tokenów\n| Faza | Model | Prompt | Completion | Total | Koszt |\n|------|-------|--------|------------|-------|-------|\n| Faza 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Faza 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **SUMA** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Porównanie z poprzednimi krokami\n| Krok | Tokeny | Koszt | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |\n|------|--------|-------|----------------|----------------|\n${comparisonRows}\n\n## Czas odpowiedzi\n- Faza 1: ${elapsedPhase1}s\n- Faza 2: ${elapsedPhase2}s\n- **Łącznie:** ${totalElapsed}s\n\n## Co kompresujemy\nSystem prompt skrócony z pełnych opisów i 8 przykładów do:\n- Jednoliniowe definicje priorytetów (pipe-separated)\n- 6 przykładów w formacie inline (zamiast wieloliniowych bloków)\n- Usunięte powtórzenia i wypełniacze\n` +
+    `# Step 06 — Prompt compression\n\n## Parameters\n- **Cheap model:** ${CHEAP_MODEL}\n- **Expensive model:** ${EXPENSIVE_MODEL}\n- **Prompt language:** English (compressed)\n- **Optimizations:** JS row filter + EN + Model Routing + Column trim + Prompt compression\n- **Electronics tickets:** ${ticketsForModel.length}\n- **High confidence (cheap model):** ${highConfidence.length}\n- **Low confidence (→ expensive model):** ${lowConfidence.length}\n\n## Prompt compression\n- **Original prompt:** ${fullPromptChars} characters\n- **Compressed prompt:** ${compressedChars} characters (${compressionPct}% less)\n\n## Token usage\n| Phase | Model | Prompt | Completion | Total | Cost |\n|-------|-------|--------|------------|-------|------|\n| Phase 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Phase 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **TOTAL** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Comparison with previous steps\n| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |\n|------|--------|------|------------------------|----------------------|\n${comparisonRows}\n\n## Response time\n- Phase 1: ${elapsedPhase1}s\n- Phase 2: ${elapsedPhase2}s\n- **Total:** ${totalElapsed}s\n\n## What we compress\nSystem prompt shortened from full descriptions and 8 examples to:\n- Single-line priority definitions (pipe-separated)\n- 6 inline examples (instead of multi-line blocks)\n- Removed repetitions and filler text\n` +
     (await buildRefComparisonSection(
       finalTickets,
       "presentation/data/categorized_by_gpt_5_5_high_thinking_en.json",

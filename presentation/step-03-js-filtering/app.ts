@@ -1,19 +1,19 @@
 /**
- * STEP 03 — JS zamiast modelu (filtrowanie po product_category)
+ * STEP 03 — JS instead of model (filtering by product_category)
  *
- * Optymalizacja: JS filtruje CSV po kolumnie product_category = "Electronics"
- * ZANIM dane trafią do modelu. Model dostaje tylko ~10 ticketów zamiast 70.
+ * Optimization: JS filters the CSV by product_category = "Electronics"
+ * BEFORE the data reaches the model. The model gets only ~10 tickets instead of 70.
  *
- * W step-01/02 model musiał:
- * 1. Przeczytać CAŁY CSV (70 ticketów, 14 kolumn)
- * 2. Sam znaleźć które tickety mają product_category = Electronics
- * 3. Sklasyfikować je (priorytet + sentyment)
- * 4. Zwrócić tylko te przefiltrowane
+ * In step-01/02 the model had to:
+ * 1. Read the ENTIRE CSV (70 tickets, 14 columns)
+ * 2. Find which tickets have product_category = Electronics by itself
+ * 3. Classify them (priority + sentiment)
+ * 4. Return only the filtered ones
  *
- * Tutaj:
- * 1. JS parsuje CSV i filtruje po product_category — 0 tokenów
- * 2. Model dostaje TYLKO tickety Electronics (~10) — ogromna oszczędność
- * 3. Model klasyfikuje priorytet + sentyment
+ * Here:
+ * 1. JS parses the CSV and filters by product_category — 0 tokens
+ * 2. Model receives ONLY Electronics tickets (~10) — huge savings
+ * 3. Model classifies priority + sentiment
  */
 
 import OpenAI from "openai";
@@ -36,14 +36,14 @@ const MODEL = "gpt-5.5";
 async function main() {
   const previousStats = await loadStatsBefore(3);
 
-  // 1. Wczytaj CSV
+  // 1. Load CSV
   const csvPath = path.resolve(
     process.cwd(),
     "presentation/data/e-commerce-tickets-en.csv",
   );
   const csvContent = await readFile(csvPath, "utf8");
 
-  // 2. ✅ JS FILTRUJE — to robił model w step-01/02!
+  // 2. ✅ JS FILTERS — this was done by the model in step-01/02!
   const allRecords = parse(csvContent, {
     columns: true,
     skip_empty_lines: true,
@@ -52,7 +52,7 @@ async function main() {
     (row) => row.product_category === "Electronics",
   );
 
-  // 3. Prompt systemowy z pliku
+  // 3. System prompt from file
   const systemPrompt = await readFile(
     path.resolve(process.cwd(), "presentation/prompts/system-prompt-en.md"),
     "utf8",
@@ -62,7 +62,7 @@ async function main() {
 
 ${JSON.stringify(electronicsTickets, null, 2)}`;
 
-  // 5. Wywołanie API (tylko Electronics tickets)
+  // 5. API call (only Electronics tickets)
   const startTime = Date.now();
 
   const response = await client.chat.completions.create({
@@ -76,11 +76,11 @@ ${JSON.stringify(electronicsTickets, null, 2)}`;
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
-  // 6. Parsowanie wyniku
+  // 6. Parse result
   const result = JSON.parse(response.choices[0]?.message?.content ?? "{}");
   const tickets = result.tickets ?? [];
 
-  // 6a. Zapis historii
+  // 6a. Save history
   const outputDir = path.resolve(
     process.cwd(),
     "presentation/step-03-js-filtering/output",
@@ -112,7 +112,7 @@ ${JSON.stringify(electronicsTickets, null, 2)}`;
     "utf8",
   );
 
-  // 7. Statystyki tokenów
+  // 7. Token statistics
   const {
     prompt_tokens: promptTokens,
     completion_tokens: completionTokens,
@@ -120,23 +120,23 @@ ${JSON.stringify(electronicsTickets, null, 2)}`;
   } = response.usage!;
   const costUSD = calculateCost(MODEL, promptTokens, completionTokens);
 
-  // Tabela porównawcza z poprzednimi krokami
+  // Comparison table with previous steps
   const comparisonRows = buildComparisonTable(
     previousStats,
-    "Step 03 (obecne)",
+    "Step 03 (current)",
     totalTokens,
     costUSD,
   );
 
-  // 7a. Porównanie z plikiem referencyjnym
+  // 7a. Comparison with reference file
   const comparisonSection = await buildRefComparisonSection(
     tickets,
     "presentation/data/categorized_by_gpt_5_5_high_thinking_en.json",
   );
 
-  // 7b. Zapis stats.md
+  // 7b. Save stats.md
   const statsMarkdown =
-    `# Step 03 — JS filtruje dane PRZED modelem\n\n## Parametry\n- **Model:** ${MODEL}\n- **Język promptu:** Angielski\n- **Optymalizacja:** JS filtruje CSV po product_category="Electronics" → model dostaje mniej danych\n- **Wszystkich ticketów w CSV:** ${allRecords.length}\n- **Ticketów Electronics (po JS filter):** ${electronicsTickets.length}\n- **Odrzuconych przez JS za 0 tokenów:** ${allRecords.length - electronicsTickets.length}\n\n## Zużycie tokenów\n| Metryka | Wartość |\n|---------|---------|\n| Prompt tokens | ${promptTokens.toLocaleString()} |\n| Completion tokens | ${completionTokens.toLocaleString()} |\n| **TOTAL tokens** | **${totalTokens.toLocaleString()}** |\n| **Koszt** | **$${costUSD.toFixed(4)}** |\n\n## Porównanie z poprzednimi krokami\n| Krok | Tokeny | Koszt | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |\n|------|--------|-------|----------------|----------------|\n${comparisonRows}\n\n## Czas odpowiedzi\n${elapsed}s\n\n## Uwagi\nJS odfiltrował ${allRecords.length - electronicsTickets.length} ticketów za 0 tokenów. Model w step-01 musiał przeczytać WSZYSTKIE ${allRecords.length}, żeby znaleźć te same ${electronicsTickets.length}.\n` +
+    `# Step 03 — JS filters data BEFORE the model\n\n## Parameters\n- **Model:** ${MODEL}\n- **Prompt language:** English\n- **Optimization:** JS filters CSV by product_category="Electronics" → model receives less data\n- **Total tickets in CSV:** ${allRecords.length}\n- **Electronics tickets (after JS filter):** ${electronicsTickets.length}\n- **Filtered out by JS at 0 tokens:** ${allRecords.length - electronicsTickets.length}\n\n## Token usage\n| Metric | Value |\n|--------|-------|\n| Prompt tokens | ${promptTokens.toLocaleString()} |\n| Completion tokens | ${completionTokens.toLocaleString()} |\n| **TOTAL tokens** | **${totalTokens.toLocaleString()}** |\n| **Cost** | **$${costUSD.toFixed(4)}** |\n\n## Comparison with previous steps\n| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |\n|------|--------|------|------------------------|----------------------|\n${comparisonRows}\n\n## Response time\n${elapsed}s\n\n## Notes\nJS filtered out ${allRecords.length - electronicsTickets.length} tickets at 0 token cost. The model in step-01 had to read ALL ${allRecords.length} tickets to find the same ${electronicsTickets.length}.\n` +
     comparisonSection;
 
   await writeFile(path.join(outputDir, "stats.md"), statsMarkdown, "utf8");

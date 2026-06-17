@@ -1,19 +1,19 @@
 /**
- * STEP 07 — Kompaktowy format danych (pipe-separated)
+ * STEP 07 — Compact data format (pipe-separated)
  *
- * Zawiera optymalizacje z poprzednich kroków:
- * - Angielski prompt (step-02)
- * - JS filtruje wiersze po product_category (step-03)
- * - Model routing: tani + drogi model (step-04)
- * - Trim kolumn: tylko ticket_id, subject, description (step-05)
- * - Kompresja promptu (step-06)
+ * Includes optimizations from previous steps:
+ * - English prompt (step-02)
+ * - JS filters rows by product_category (step-03)
+ * - Model routing: cheap + expensive model (step-04)
+ * - Column trim: only ticket_id, subject, description (step-05)
+ * - Prompt compression (step-06)
  *
- * Nowa optymalizacja:
- * - Zamiast wysyłać dane jako JSON (z powtarzającymi się kluczami dla każdego ticketu),
- *   używamy pipe-separated format: ticket_id|subject|description
- * - Eliminuje overhead JSON: nazwy kluczy ("ticket_id", "subject", "description")
- *   powtarzane dla każdego ticketu → zastąpione jedną linią nagłówka
- * - Mniej tokenów na strukturze = więcej miejsca na treść
+ * New optimization:
+ * - Instead of sending data as JSON (with repeating keys for each ticket),
+ *   we use pipe-separated format: ticket_id|subject|description
+ * - Eliminates JSON overhead: key names ("ticket_id", "subject", "description")
+ *   repeated for each ticket → replaced with a single header line
+ * - Fewer tokens on structure = more room for content
  */
 
 import OpenAI from "openai";
@@ -39,7 +39,7 @@ const EXPENSIVE_MODEL = "gpt-5.5";
 async function main() {
   const previousStats = await loadStatsBefore(7);
 
-  // 1. Wczytaj CSV + JS filtrowanie + trim kolumn
+  // 1. Load CSV + JS filtering + column trim
   const csvPath = path.resolve(
     process.cwd(),
     "presentation/data/e-commerce-tickets-en.csv",
@@ -60,7 +60,7 @@ async function main() {
     description: row.description,
   }));
 
-  // 2. ✅ NOWA OPTYMALIZACJA: konwersja do pipe-separated format (mniej tokenów niż JSON)
+  // 2. ✅ NEW OPTIMIZATION: convert to pipe-separated format (fewer tokens than JSON)
   const jsonFormat = JSON.stringify(ticketsForModel, null, 2);
   const pipeFormat = ticketsToPipeFormat(ticketsForModel);
 
@@ -68,10 +68,10 @@ async function main() {
   const pipeChars = pipeFormat.length;
   const savingPct = (((jsonChars - pipeChars) / jsonChars) * 100).toFixed(0);
 
-  // Przykładowe wiersze do stats.md
+  // Example lines for stats.md
   const exampleLines = pipeFormat.split("\n").slice(0, 3).join("\n");
 
-  // 3. Wczytaj skompresowany prompt + dodaj instrukcję formatu pipe
+  // 3. Load compressed prompt + add pipe format instruction
   const compressedPrompt = await readFile(
     path.resolve(
       process.cwd(),
@@ -83,7 +83,7 @@ async function main() {
 
 Input format: pipe-separated text with header row: ticket_id|subject|description`;
 
-  // 4. FAZA 1 — Tani model klasyfikuje WSZYSTKO z pipe format
+  // 4. PHASE 1 — Cheap model classifies EVERYTHING with pipe format
   const userMessageCheap = `Here are ${ticketsForModel.length} customer support tickets in pipe-separated format. Classify each one with priority, sentiment, and confidence.
 
 ${pipeFormat}`;
@@ -117,7 +117,7 @@ ${pipeFormat}`;
   );
   const lowConfidence = cheapTickets.filter((t: any) => t.confidence === "low");
 
-  // 5. FAZA 2 — Drogi model TYLKO dla low confidence (jeśli są)
+  // 5. PHASE 2 — Expensive model ONLY for low confidence (if any)
   let expensiveCost = 0;
   let expensiveUsage = {
     prompt_tokens: 0,
@@ -166,7 +166,7 @@ ${pipeForExpensive}`;
     );
   }
 
-  // 6. Merge wyników
+  // 6. Merge results
   const finalTickets = mergeRoutedTickets(
     highConfidence,
     expensiveTickets,
@@ -175,7 +175,7 @@ ${pipeForExpensive}`;
     EXPENSIVE_MODEL,
   );
 
-  // 7. Sumaryczne statystyki
+  // 7. Summary statistics
   const totalPromptTokens =
     cheapUsage.prompt_tokens + expensiveUsage.prompt_tokens;
   const totalCompletionTokens =
@@ -186,7 +186,7 @@ ${pipeForExpensive}`;
     parseFloat(elapsedPhase1) + parseFloat(elapsedPhase2)
   ).toFixed(1);
 
-  // 8. Zapis historii
+  // 8. Save history
   const outputDir = path.resolve(
     process.cwd(),
     "presentation/step-07-pipe-separated-input/output",
@@ -198,7 +198,7 @@ ${pipeForExpensive}`;
     JSON.stringify(
       {
         timestamp: new Date().toISOString(),
-        optimization: `Pipe format: JSON ${jsonChars} znaków → pipe ${pipeChars} znaków (${savingPct}% mniej)`,
+        optimization: `Pipe format: JSON ${jsonChars} chars → pipe ${pipeChars} chars (${savingPct}% less)`,
         routing: {
           cheapModel: CHEAP_MODEL,
           expensiveModel: EXPENSIVE_MODEL,
@@ -227,17 +227,17 @@ ${pipeForExpensive}`;
     "utf8",
   );
 
-  // 9. Tabela porównawcza z poprzednimi krokami
+  // 9. Comparison table with previous steps
   const comparisonRows = buildComparisonTable(
     previousStats,
-    "Step 07 (obecne)",
+    "Step 07 (current)",
     totalTokens,
     totalCost,
   );
 
-  // 9a. Zapis stats.md
+  // 9a. Save stats.md
   const statsMarkdown =
-    `# Step 07 — Kompaktowy format danych (pipe-separated)\n\n## Parametry\n- **Tani model:** ${CHEAP_MODEL}\n- **Drogi model:** ${EXPENSIVE_MODEL}\n- **Język promptu:** Angielski (skompresowany)\n- **Optymalizacje:** JS filter + EN + Model Routing + Trim kolumn + Kompresja promptu + Pipe format\n- **Ticketów Electronics:** ${ticketsForModel.length}\n- **High confidence (tani model):** ${highConfidence.length}\n- **Low confidence (→ drogi model):** ${lowConfidence.length}\n\n## Kompaktowy format danych\n- **JSON:** ${jsonChars} znaków\n- **Pipe-separated:** ${pipeChars} znaków (${savingPct}% mniej)\n\n## Zużycie tokenów\n| Faza | Model | Prompt | Completion | Total | Koszt |\n|------|-------|--------|------------|-------|-------|\n| Faza 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Faza 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **SUMA** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Porównanie z poprzednimi krokami\n| Krok | Tokeny | Koszt | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |\n|------|--------|-------|----------------|----------------|\n${comparisonRows}\n\n## Czas odpowiedzi\n- Faza 1: ${elapsedPhase1}s\n- Faza 2: ${elapsedPhase2}s\n- **Łącznie:** ${totalElapsed}s\n\n## Przykład formatu pipe\n\`\`\`\n${exampleLines}\n...\`\`\`\n\n## Dlaczego pipe oszczędza tokeny\nJSON powtarza nazwy kluczy ("ticket_id", "subject", "description") dla każdego z ${ticketsForModel.length} ticketów.\nPipe używa jednego wiersza nagłówka — eliminuje ~${ticketsForModel.length * 3} powtórzeń kluczy.\n` +
+    `# Step 07 — Compact data format (pipe-separated)\n\n## Parameters\n- **Cheap model:** ${CHEAP_MODEL}\n- **Expensive model:** ${EXPENSIVE_MODEL}\n- **Prompt language:** English (compressed)\n- **Optimizations:** JS filter + EN + Model Routing + Column trim + Prompt compression + Pipe format\n- **Electronics tickets:** ${ticketsForModel.length}\n- **High confidence (cheap model):** ${highConfidence.length}\n- **Low confidence (→ expensive model):** ${lowConfidence.length}\n\n## Compact data format\n- **JSON:** ${jsonChars} characters\n- **Pipe-separated:** ${pipeChars} characters (${savingPct}% less)\n\n## Token usage\n| Phase | Model | Prompt | Completion | Total | Cost |\n|-------|-------|--------|------------|-------|------|\n| Phase 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Phase 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **TOTAL** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Comparison with previous steps\n| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |\n|------|--------|------|------------------------|----------------------|\n${comparisonRows}\n\n## Response time\n- Phase 1: ${elapsedPhase1}s\n- Phase 2: ${elapsedPhase2}s\n- **Total:** ${totalElapsed}s\n\n## Pipe format example\n\`\`\`\n${exampleLines}\n...\`\`\`\n\n## Why pipe saves tokens\nJSON repeats key names ("ticket_id", "subject", "description") for each of the ${ticketsForModel.length} tickets.\nPipe uses a single header row — eliminates ~${ticketsForModel.length * 3} key repetitions.\n` +
     (await buildRefComparisonSection(
       finalTickets,
       "presentation/data/categorized_by_gpt_5_5_high_thinking_en.json",

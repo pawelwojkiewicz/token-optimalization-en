@@ -1,21 +1,21 @@
 /**
- * STEP 08 — Obcinanie opisów (description truncation)
+ * STEP 08 — Description truncation
  *
- * Zawiera optymalizacje z poprzednich kroków:
- * - Angielski prompt (step-02)
- * - JS filtruje wiersze po product_category (step-03)
- * - Model routing: tani + drogi model (step-04)
- * - Trim kolumn: tylko ticket_id, subject, description (step-05)
- * - Kompresja promptu (step-06)
+ * Includes optimizations from previous steps:
+ * - English prompt (step-02)
+ * - JS filters rows by product_category (step-03)
+ * - Model routing: cheap + expensive model (step-04)
+ * - Column trim: only ticket_id, subject, description (step-05)
+ * - Prompt compression (step-06)
  * - Pipe-separated format (step-07)
  *
- * Nowa optymalizacja:
- * - Opisy (description) obcinane do MAX_DESC_CHARS znaków
- * - Większość sygnału klasyfikacji jest w pierwszych ~150 znakach
- * - Reszta to zazwyczaj powtórzenia i ozdobniki
+ * New optimization:
+ * - Descriptions truncated to MAX_DESC_CHARS characters
+ * - Most classification signal is in the first ~150 characters
+ * - The rest is usually repetition and filler
  *
- * Trade-off: nieznaczny spadek accuracy (kilka ticketów klasyfikowanych inaczej)
- * vs znacząca oszczędność tokenów na każdym tickecie
+ * Trade-off: slight accuracy drop (a few tickets classified differently)
+ * vs significant token savings per ticket
  */
 
 import OpenAI from "openai";
@@ -42,7 +42,7 @@ const MAX_DESC_CHARS = 150;
 async function main() {
   const previousStats = await loadStatsBefore(8);
 
-  // 1. Wczytaj CSV + JS filtrowanie + trim kolumn
+  // 1. Load CSV + JS filtering + column trim
   const csvPath = path.resolve(
     process.cwd(),
     "presentation/data/e-commerce-tickets-en.csv",
@@ -57,7 +57,7 @@ async function main() {
     (row) => row.product_category === "Electronics",
   );
 
-  // 2. ✅ NOWA OPTYMALIZACJA: Obcinanie opisów do MAX_DESC_CHARS znaków
+  // 2. ✅ NEW OPTIMIZATION: Truncate descriptions to MAX_DESC_CHARS characters
   const ticketsForModel = electronicsTickets.map((row) => ({
     ticket_id: row.ticket_id,
     subject: row.subject,
@@ -76,7 +76,7 @@ async function main() {
     (r) => r.description.length > MAX_DESC_CHARS,
   ).length;
 
-  // 3. Konwersja do pipe-separated format (z step-07)
+  // 3. Convert to pipe-separated format (from step-07)
   const jsonFormat = JSON.stringify(ticketsForModel, null, 2);
   const pipeFormat = ticketsToPipeFormat(ticketsForModel);
   const jsonChars = jsonFormat.length;
@@ -84,7 +84,7 @@ async function main() {
   const savingPct = (((jsonChars - pipeChars) / jsonChars) * 100).toFixed(0);
   const exampleLines = pipeFormat.split("\n").slice(0, 3).join("\n");
 
-  // 4. Wczytaj skompresowany prompt + dodaj instrukcję formatu pipe
+  // 4. Load compressed prompt + add pipe format instruction
   const compressedPrompt = await readFile(
     path.resolve(
       process.cwd(),
@@ -96,7 +96,7 @@ async function main() {
 
 Input format: pipe-separated text with header row: ticket_id|subject|description`;
 
-  // 5. FAZA 1 — Tani model klasyfikuje WSZYSTKO z pipe format
+  // 5. PHASE 1 — Cheap model classifies EVERYTHING with pipe format
   const userMessageCheap = `Here are ${ticketsForModel.length} customer support tickets in pipe-separated format. Classify each one with priority, sentiment, and confidence.
 
 ${pipeFormat}`;
@@ -130,7 +130,7 @@ ${pipeFormat}`;
   );
   const lowConfidence = cheapTickets.filter((t: any) => t.confidence === "low");
 
-  // 6. FAZA 2 — Drogi model TYLKO dla low confidence (jeśli są)
+  // 6. PHASE 2 — Expensive model ONLY for low confidence (if any)
   let expensiveCost = 0;
   let expensiveUsage = {
     prompt_tokens: 0,
@@ -179,7 +179,7 @@ ${pipeForExpensive}`;
     );
   }
 
-  // 7. Merge wyników
+  // 7. Merge results
   const finalTickets = mergeRoutedTickets(
     highConfidence,
     expensiveTickets,
@@ -188,7 +188,7 @@ ${pipeForExpensive}`;
     EXPENSIVE_MODEL,
   );
 
-  // 8. Sumaryczne statystyki
+  // 8. Summary statistics
   const totalPromptTokens =
     cheapUsage.prompt_tokens + expensiveUsage.prompt_tokens;
   const totalCompletionTokens =
@@ -199,7 +199,7 @@ ${pipeForExpensive}`;
     parseFloat(elapsedPhase1) + parseFloat(elapsedPhase2)
   ).toFixed(1);
 
-  // 9. Zapis historii
+  // 9. Save history
   const outputDir = path.resolve(
     process.cwd(),
     "presentation/step-08-truncate-description/output",
@@ -211,7 +211,7 @@ ${pipeForExpensive}`;
     JSON.stringify(
       {
         timestamp: new Date().toISOString(),
-        optimization: `Pipe format + Truncation: opisy obcięte do ${MAX_DESC_CHARS} znaków (${truncatedCount}/${ticketsForModel.length} obciętych, avg ${avgFull}→${avgTrunc} znaków)`,
+        optimization: `Pipe format + Truncation: descriptions truncated to ${MAX_DESC_CHARS} chars (${truncatedCount}/${ticketsForModel.length} truncated, avg ${avgFull}\u2192${avgTrunc} chars)`,
         truncation: {
           maxChars: MAX_DESC_CHARS,
           truncatedCount,
@@ -246,17 +246,17 @@ ${pipeForExpensive}`;
     "utf8",
   );
 
-  // 10. Tabela porównawcza z poprzednimi krokami
+  // 10. Comparison table with previous steps
   const comparisonRows = buildComparisonTable(
     previousStats,
-    "Step 08 (obecne)",
+    "Step 08 (current)",
     totalTokens,
     totalCost,
   );
 
-  // 10a. Zapis stats.md
+  // 10a. Save stats.md
   const statsMarkdown =
-    `# Step 08 — Obcinanie opisów (description truncation)\n\n## Parametry\n- **Tani model:** ${CHEAP_MODEL}\n- **Drogi model:** ${EXPENSIVE_MODEL}\n- **Język promptu:** Angielski (skompresowany)\n- **Optymalizacje:** JS filter + EN + Model Routing + Trim kolumn + Kompresja promptu + Pipe format + Truncation\n- **Ticketów Electronics:** ${ticketsForModel.length}\n- **High confidence (tani model):** ${highConfidence.length}\n- **Low confidence (→ drogi model):** ${lowConfidence.length}\n\n## Obcinanie opisów\n- **Limit:** ${MAX_DESC_CHARS} znaków\n- **Obciętych opisów:** ${truncatedCount}/${ticketsForModel.length}\n- **Średnia długość przed:** ${avgFull} znaków\n- **Średnia długość po:** ${avgTrunc} znaków\n\n## Format danych (pipe)\n- **JSON:** ${jsonChars} znaków\n- **Pipe-separated:** ${pipeChars} znaków (${savingPct}% mniej)\n\n## Zużycie tokenów\n| Faza | Model | Prompt | Completion | Total | Koszt |\n|------|-------|--------|------------|-------|-------|\n| Faza 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Faza 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **SUMA** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Porównanie z poprzednimi krokami\n| Krok | Tokeny | Koszt | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |\n|------|--------|-------|----------------|----------------|\n${comparisonRows}\n\n## Czas odpowiedzi\n- Faza 1: ${elapsedPhase1}s\n- Faza 2: ${elapsedPhase2}s\n- **Łącznie:** ${totalElapsed}s\n\n## Przykład formatu pipe\n\`\`\`\n${exampleLines}\n...\`\`\`\n` +
+    `# Step 08 — Description truncation\n\n## Parameters\n- **Cheap model:** ${CHEAP_MODEL}\n- **Expensive model:** ${EXPENSIVE_MODEL}\n- **Prompt language:** English (compressed)\n- **Optimizations:** JS filter + EN + Model Routing + Column trim + Prompt compression + Pipe format + Truncation\n- **Electronics tickets:** ${ticketsForModel.length}\n- **High confidence (cheap model):** ${highConfidence.length}\n- **Low confidence (→ expensive model):** ${lowConfidence.length}\n\n## Description truncation\n- **Limit:** ${MAX_DESC_CHARS} characters\n- **Truncated descriptions:** ${truncatedCount}/${ticketsForModel.length}\n- **Average length before:** ${avgFull} characters\n- **Average length after:** ${avgTrunc} characters\n\n## Data format (pipe)\n- **JSON:** ${jsonChars} characters\n- **Pipe-separated:** ${pipeChars} characters (${savingPct}% less)\n\n## Token usage\n| Phase | Model | Prompt | Completion | Total | Cost |\n|-------|-------|--------|------------|-------|------|\n| Phase 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Phase 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **TOTAL** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Comparison with previous steps\n| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |\n|------|--------|------|------------------------|----------------------|\n${comparisonRows}\n\n## Response time\n- Phase 1: ${elapsedPhase1}s\n- Phase 2: ${elapsedPhase2}s\n- **Total:** ${totalElapsed}s\n\n## Pipe format example\n\`\`\`\n${exampleLines}\n...\`\`\`\n` +
     (await buildRefComparisonSection(
       finalTickets,
       "presentation/data/categorized_by_gpt_5_5_high_thinking_en.json",

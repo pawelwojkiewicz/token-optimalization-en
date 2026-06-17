@@ -1,15 +1,15 @@
 /**
- * STEP 05 — Trimowanie kolumn (wysyłamy tylko potrzebne pola)
+ * STEP 05 — Column trimming (send only needed fields)
  *
- * Zawiera optymalizacje z poprzednich kroków:
- * - Angielski prompt (step-02)
- * - JS filtruje wiersze po product_category (step-03)
- * - Model routing: tani + drogi model (step-04)
+ * Includes optimizations from previous steps:
+ * - English prompt (step-02)
+ * - JS filters rows by product_category (step-03)
+ * - Model routing: cheap + expensive model (step-04)
  *
- * Nowa optymalizacja:
- * - Zamiast wysyłać wszystkie 14 kolumn CSV do modelu,
- *   wysyłamy TYLKO pola potrzebne do klasyfikacji: ticket_id, subject, description
- * - Model nie musi czytać customer_email, phone, order_id itp.
+ * New optimization:
+ * - Instead of sending all 14 CSV columns to the model,
+ *   we send ONLY the fields needed for classification: ticket_id, subject, description
+ * - Model doesn’t need to read customer_email, phone, order_id, etc.
  */
 
 import OpenAI from "openai";
@@ -34,7 +34,7 @@ const EXPENSIVE_MODEL = "gpt-5.5";
 async function main() {
   const previousStats = await loadStatsBefore(5);
 
-  // 1. Wczytaj CSV + JS filtrowanie wierszy (z step-03)
+  // 1. Load CSV + JS row filtering (from step-03)
   const csvPath = path.resolve(
     process.cwd(),
     "presentation/data/e-commerce-tickets-en.csv",
@@ -49,7 +49,7 @@ async function main() {
     (row) => row.product_category === "Electronics",
   );
 
-  // 2. ✅ NOWA OPTYMALIZACJA: Trim kolumn — tylko pola potrzebne do klasyfikacji
+  // 2. ✅ NEW OPTIMIZATION: Column trim — only fields needed for classification
   const ticketsForModel = electronicsTickets.map((row) => ({
     ticket_id: row.ticket_id,
     subject: row.subject,
@@ -59,13 +59,13 @@ async function main() {
   const allColumnsSize = JSON.stringify(electronicsTickets, null, 2).length;
   const trimmedSize = JSON.stringify(ticketsForModel, null, 2).length;
 
-  // 3. Wczytaj prompt bazowy
+  // 3. Load base prompt
   const basePrompt = await readFile(
     path.resolve(process.cwd(), "presentation/prompts/system-prompt-en.md"),
     "utf8",
   );
 
-  // 4. FAZA 1 — Tani model klasyfikuje WSZYSTKO + confidence
+  // 4. PHASE 1 — Cheap model classifies EVERYTHING + confidence
   const userMessageCheap = `Here are ${ticketsForModel.length} customer support tickets. Classify each one with priority, sentiment, and confidence.
 
 ${JSON.stringify(ticketsForModel, null, 2)}`;
@@ -99,7 +99,7 @@ ${JSON.stringify(ticketsForModel, null, 2)}`;
   );
   const lowConfidence = cheapTickets.filter((t: any) => t.confidence === "low");
 
-  // 5. FAZA 2 — Drogi model TYLKO dla low confidence (jeśli są)
+  // 5. PHASE 2 — Expensive model ONLY for low confidence (if any)
   let expensiveCost = 0;
   let expensiveUsage = {
     prompt_tokens: 0,
@@ -147,7 +147,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     );
   }
 
-  // 6. Merge wyników
+  // 6. Merge results
   const finalTickets = mergeRoutedTickets(
     highConfidence,
     expensiveTickets,
@@ -156,7 +156,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     EXPENSIVE_MODEL,
   );
 
-  // 7. Sumaryczne statystyki
+  // 7. Summary statistics
   const totalPromptTokens =
     cheapUsage.prompt_tokens + expensiveUsage.prompt_tokens;
   const totalCompletionTokens =
@@ -167,7 +167,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     parseFloat(elapsedPhase1) + parseFloat(elapsedPhase2)
   ).toFixed(1);
 
-  // 8. Zapis historii
+  // 8. Save history
   const outputDir = path.resolve(
     process.cwd(),
     "presentation/step-05-trim-columns/output",
@@ -208,17 +208,17 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
     "utf8",
   );
 
-  // 9. Tabela porównawcza z poprzednimi krokami
+  // 9. Comparison table with previous steps
   const comparisonRows = buildComparisonTable(
     previousStats,
-    "Step 05 (obecne)",
+    "Step 05 (current)",
     totalTokens,
     totalCost,
   );
 
-  // 9a. Zapis stats.md
+  // 9a. Save stats.md
   const statsMarkdown =
-    `# Step 05 — Trimowanie kolumn\n\n## Parametry\n- **Tani model:** ${CHEAP_MODEL}\n- **Drogi model:** ${EXPENSIVE_MODEL}\n- **Język promptu:** Angielski\n- **Optymalizacje:** JS filter wierszy + EN + Model Routing + Trim kolumn\n- **Ticketów Electronics:** ${ticketsForModel.length}\n- **Kolumny wysłane do modelu:** 3 z 14 (ticket_id, subject, description)\n- **High confidence (tani model):** ${highConfidence.length}\n- **Low confidence (→ drogi model):** ${lowConfidence.length}\n\n## Zużycie tokenów\n| Faza | Model | Prompt | Completion | Total | Koszt |\n|------|-------|--------|------------|-------|-------|\n| Faza 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Faza 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **SUMA** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Porównanie z poprzednimi krokami\n| Krok | Tokeny | Koszt | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |\n|------|--------|-------|----------------|----------------|\n${comparisonRows}\n\n## Czas odpowiedzi\n- Faza 1: ${elapsedPhase1}s\n- Faza 2: ${elapsedPhase2}s\n- **Łącznie:** ${totalElapsed}s\n\n## Co trimujemy\nZ 14 kolumn CSV wysyłamy tylko 3:\n- ✅ ticket_id (identyfikator)\n- ✅ subject (temat — kluczowy dla klasyfikacji)\n- ✅ description (opis — kluczowy dla klasyfikacji)\n- ❌ customer_name, customer_email, customer_phone, product_name, product_category, order_id, order_date, ticket_date, channel, status, country\n\nRozmiar danych: ${(allColumnsSize / 1024).toFixed(1)} KB → ${(trimmedSize / 1024).toFixed(1)} KB (${((1 - trimmedSize / allColumnsSize) * 100).toFixed(0)}% mniej znaków)\n` +
+    `# Step 05 — Column trimming\n\n## Parameters\n- **Cheap model:** ${CHEAP_MODEL}\n- **Expensive model:** ${EXPENSIVE_MODEL}\n- **Prompt language:** English\n- **Optimizations:** JS row filter + EN + Model Routing + Column trim\n- **Electronics tickets:** ${ticketsForModel.length}\n- **Columns sent to model:** 3 of 14 (ticket_id, subject, description)\n- **High confidence (cheap model):** ${highConfidence.length}\n- **Low confidence (→ expensive model):** ${lowConfidence.length}\n\n## Token usage\n| Phase | Model | Prompt | Completion | Total | Cost |\n|-------|-------|--------|------------|-------|------|\n| Phase 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Phase 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **TOTAL** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Comparison with previous steps\n| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |\n|------|--------|------|------------------------|----------------------|\n${comparisonRows}\n\n## Response time\n- Phase 1: ${elapsedPhase1}s\n- Phase 2: ${elapsedPhase2}s\n- **Total:** ${totalElapsed}s\n\n## What we trim\nFrom 14 CSV columns we send only 3:\n- ✅ ticket_id (identifier)\n- ✅ subject (subject line — key for classification)\n- ✅ description (body — key for classification)\n- ❌ customer_name, customer_email, customer_phone, product_name, product_category, order_id, order_date, ticket_date, channel, status, country\n\nData size: ${(allColumnsSize / 1024).toFixed(1)} KB → ${(trimmedSize / 1024).toFixed(1)} KB (${((1 - trimmedSize / allColumnsSize) * 100).toFixed(0)}% less)\n` +
     (await buildRefComparisonSection(
       finalTickets,
       "presentation/data/categorized_by_gpt_5_5_high_thinking_en.json",

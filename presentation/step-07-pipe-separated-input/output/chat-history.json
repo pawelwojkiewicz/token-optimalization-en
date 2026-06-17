@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-06-10T12:09:50.283Z",
-  "optimization": "Pipe format: JSON 7094 znaków → pipe 5829 znaków (18% mniej)",
+  "timestamp": "2026-06-10T17:58:25.615Z",
+  "optimization": "Pipe format: JSON 7315 znaków → pipe 6050 znaków (17% mniej)",
   "routing": {
     "cheapModel": "gpt-4o-mini",
     "expensiveModel": "gpt-5.5",
@@ -11,11 +11,11 @@
   "phase1": {
     "model": "gpt-4o-mini",
     "usage": {
-      "prompt_tokens": 1727,
-      "completion_tokens": 506,
-      "total_tokens": 2233,
+      "prompt_tokens": 1767,
+      "completion_tokens": 509,
+      "total_tokens": 2276,
       "prompt_tokens_details": {
-        "cached_tokens": 0,
+        "cached_tokens": 1024,
         "audio_tokens": 0
       },
       "completion_tokens_details": {
@@ -25,7 +25,7 @@
         "rejected_prediction_tokens": 0
       }
     },
-    "cost": 0.00056265
+    "cost": 0.00057045
   },
   "phase2": {
     "model": "gpt-5.5",
@@ -38,15 +38,15 @@
     "ticketsReclassified": 0
   },
   "totalUsage": {
-    "promptTokens": 1727,
-    "completionTokens": 506,
-    "totalTokens": 2233,
-    "totalCost": 0.00056265
+    "promptTokens": 1767,
+    "completionTokens": 509,
+    "totalTokens": 2276,
+    "totalCost": 0.00057045
   },
   "result": [
     {
       "ticket_id": "T-1002",
-      "product_category": "Financial",
+      "product_category": "Account Issues",
       "priority": "critical",
       "sentiment": "negative",
       "confidence": "high",
@@ -86,7 +86,7 @@
     },
     {
       "ticket_id": "T-1038",
-      "product_category": "Financial",
+      "product_category": "Account Issues",
       "priority": "critical",
       "sentiment": "negative",
       "confidence": "high",
@@ -103,7 +103,7 @@
     {
       "ticket_id": "T-1056",
       "product_category": "Speaker",
-      "priority": "medium",
+      "priority": "high",
       "sentiment": "negative",
       "confidence": "high",
       "model": "gpt-4o-mini"
@@ -151,7 +151,7 @@
     {
       "ticket_id": "T-1081",
       "product_category": "TV",
-      "priority": "low",
+      "priority": "medium",
       "sentiment": "neutral",
       "confidence": "high",
       "model": "gpt-4o-mini"
@@ -166,7 +166,7 @@
     },
     {
       "ticket_id": "T-1113",
-      "product_category": "TV",
+      "product_category": "Wholesale Inquiry",
       "priority": "low",
       "sentiment": "neutral",
       "confidence": "high",

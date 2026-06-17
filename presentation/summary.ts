@@ -1,10 +1,10 @@
 /**
- * SUMMARY — Podsumowanie wszystkich kroków optymalizacji
+ * SUMMARY — Overview of all optimization steps
  *
- * Czyta stats.md z każdego stepu i wypisuje:
- * - Tabelę porównawczą ze wszystkimi krokami
- * - ASCII bar chart tokenów
- * - Całkowite oszczędności vs baseline
+ * Reads stats.md from each step and outputs:
+ * - Comparison table with all steps
+ * - ASCII bar chart of tokens
+ * - Total savings vs baseline
  */
 
 import { readFile, writeFile } from "node:fs/promises";
@@ -16,40 +16,57 @@ interface StepData {
   totalTokens: number;
   costUSD: number;
   elapsedS: number;
+  coverage: string;
 }
 
 async function parseStats(
   statsPath: string,
-): Promise<{ tokens: number; cost: number; elapsed: number } | null> {
+): Promise<{
+  tokens: number;
+  cost: number;
+  elapsed: number;
+  coverage: string;
+} | null> {
   try {
     const content = await readFile(
       path.resolve(process.cwd(), statsPath),
       "utf8",
     );
 
-    // tokens: TOTAL tokens** | **X** lub SUMA row
+    // tokens: TOTAL tokens** | **X** or TOTAL row
     let tokensMatch = content.match(/TOTAL tokens\*\*\s*\|\s*\*\*([\d,]+)/);
     if (!tokensMatch)
       tokensMatch = content.match(
-        /\*\*SUMA\*\*\s*\|[^|]*\|[^|]*\|[^|]*\|\s*\*\*([\d,]+)\*\*/,
+        /\*\*TOTAL\*\*\s*\|[^|]*\|[^|]*\|[^|]*\|\s*\*\*([\d,]+)\*\*/,
       );
     const tokens = parseInt((tokensMatch?.[1] ?? "0").replace(/,/g, ""), 10);
 
-    // cost: Koszt** | **$X** lub SUMA row
-    let costMatch = content.match(/Koszt\*\*\s*\|\s*\*\*\$([\d.]+)/);
+    // cost: Cost** | **$X** or TOTAL row
+    let costMatch = content.match(/Cost\*\*\s*\|\s*\*\*\$([\d.]+)/);
     if (!costMatch)
       costMatch = content.match(
-        /\*\*SUMA\*\*\s*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|\s*\*\*\$([\d.]+)\*\*/,
+        /\*\*TOTAL\*\*\s*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|\s*\*\*\$([\d.]+)\*\*/,
       );
     const cost = parseFloat(costMatch?.[1] ?? "0");
 
-    // elapsed: "Łącznie:** Xs" lub simple "X.Xs\n"
-    let elapsedMatch = content.match(/Łącznie:\*\*\s*([\d.]+)s/);
+    // elapsed: "Total:** Xs" or simple "X.Xs\n"
+    let elapsedMatch = content.match(/Total:\*\*\s*([\d.]+)s/);
     if (!elapsedMatch)
-      elapsedMatch = content.match(/## Czas odpowiedzi\n([\d.]+)s/);
+      elapsedMatch = content.match(/## Response time\n([\d.]+)s/);
     const elapsed = parseFloat(elapsedMatch?.[1] ?? "0");
 
-    return { tokens, cost, elapsed };
+    // coverage: "Coverage: X/Y tickets" or perfect coverage
+    const coverageMatch = content.match(/Coverage:\s*(\d+\/\d+)/);
+    let coverage = coverageMatch?.[1] ?? "";
+    if (!coverage && /perfectly match/i.test(content)) {
+      const refMatch = content.match(
+        /Reference tickets[^:]*:\*\*\s*(\d+)/,
+      );
+      const ref = refMatch?.[1] ?? "19";
+      coverage = `${ref}/${ref}`;
+    }
+
+    return { tokens, cost, elapsed, coverage };
   } catch {
     return null;
   }
@@ -68,17 +85,17 @@ async function main() {
   const steps = [
     {
       path: "presentation/step-01-no-optimization/output/stats.md",
-      name: "Step 01 — PL, brak opt., gpt-5.5",
-      short: "01 PL brak opt.",
+      name: "Step 01 \u2014 PL, no opt., gpt-5.5",
+      short: "01 PL no opt.",
     },
     {
       path: "presentation/step-02-english/output/stats.md",
-      name: "Step 02 — EN prompt, gpt-5.5",
+      name: "Step 02 \u2014 EN prompt, gpt-5.5",
       short: "02 EN prompt",
     },
     {
       path: "presentation/step-03-js-filtering/output/stats.md",
-      name: "Step 03 — JS filter wierszy, gpt-5.5",
+      name: "Step 03 \u2014 JS row filter, gpt-5.5",
       short: "03 JS filter",
     },
     {
@@ -88,13 +105,13 @@ async function main() {
     },
     {
       path: "presentation/step-05-trim-columns/output/stats.md",
-      name: "Step 05 — Trim kolumn (3/14)",
-      short: "05 Trim kolumn",
+      name: "Step 05 \u2014 Column trim (3/14)",
+      short: "05 Col trim",
     },
     {
       path: "presentation/step-06-prompt-compression/output/stats.md",
-      name: "Step 06 — Kompresja promptu",
-      short: "06 Kompresja",
+      name: "Step 06 \u2014 Prompt compression",
+      short: "06 Compression",
     },
     {
       path: "presentation/step-07-pipe-separated-input/output/stats.md",
@@ -118,13 +135,14 @@ async function main() {
         totalTokens: parsed.tokens,
         costUSD: parsed.cost,
         elapsedS: parsed.elapsed,
+        coverage: parsed.coverage,
       });
     }
   }
 
   if (data.length === 0) {
     console.log(
-      "Brak danych — odpal najpierw stepy (npm run step-01 ... step-07)",
+      "No data \u2014 run the steps first (npm run step-01 ... step-07)",
     );
     return;
   }
@@ -136,7 +154,7 @@ async function main() {
   const line = "─".repeat(100);
 
   console.log("\n" + LINE);
-  console.log(" PODSUMOWANIE OPTYMALIZACJI TOKENÓW — WSZYSTKIE KROKI");
+  console.log(" TOKEN OPTIMIZATION SUMMARY — ALL STEPS");
   console.log(LINE);
 
   // ── TABELA ────────────────────────────────────────────────────────────────
@@ -150,12 +168,12 @@ async function main() {
   };
   const header =
     " " +
-    "Krok".padEnd(COL.step) +
-    "Tokeny".padStart(COL.tokens) +
-    "Koszt".padStart(COL.cost) +
-    "Czas".padStart(COL.time) +
+    "Step".padEnd(COL.step) +
+    "Tokens".padStart(COL.tokens) +
+    "Cost".padStart(COL.cost) +
+    "Time".padStart(COL.time) +
     "vs baseline".padStart(COL.vsBase) +
-    "vs poprz.".padStart(COL.vsPrev);
+    "vs prev.".padStart(COL.vsPrev);
 
   console.log(header);
   console.log(line);
@@ -198,7 +216,7 @@ async function main() {
 
   // ── ASCII BAR CHART ────────────────────────────────────────────────────────
   console.log("\n" + LINE);
-  console.log(" ZUŻYCIE TOKENÓW — WIZUALIZACJA");
+  console.log(" TOKEN USAGE — VISUALIZATION");
   console.log(LINE);
 
   for (const d of data) {
@@ -219,34 +237,34 @@ async function main() {
 
   console.log("\n" + LINE);
   console.log(
-    " CAŁKOWITE OSZCZĘDNOŚCI — Step 01 → Step " +
+    " TOTAL SAVINGS — Step 01 → Step " +
       String(data.length).padStart(2, "0"),
   );
   console.log(LINE);
   console.log(
-    ` Tokeny:   ${fmt(baseline.totalTokens).padStart(7)} → ${fmt(last.totalTokens).padStart(7)}` +
-      `   oszczędność: ${fmt(totalTokenSav)} (${totalTokenPct}%)`,
+    ` Tokens:   ${fmt(baseline.totalTokens).padStart(7)} → ${fmt(last.totalTokens).padStart(7)}` +
+      `   savings: ${fmt(totalTokenSav)} (${totalTokenPct}%)`,
   );
   console.log(
-    ` Koszt:    $${baseline.costUSD.toFixed(4).padStart(6)} → $${last.costUSD.toFixed(4).padStart(6)}` +
-      `   oszczędność: $${totalCostSav.toFixed(4)} (${totalCostPct}%)`,
+    ` Cost:     $${baseline.costUSD.toFixed(4).padStart(6)} → $${last.costUSD.toFixed(4).padStart(6)}` +
+      `   savings: $${totalCostSav.toFixed(4)} (${totalCostPct}%)`,
   );
   if (data[0].elapsedS > 0 && last.elapsedS > 0) {
     const timeSav = data[0].elapsedS - last.elapsedS;
     const timePct = ((timeSav / data[0].elapsedS) * 100).toFixed(1);
     console.log(
-      ` Czas:     ${data[0].elapsedS.toFixed(1).padStart(7)}s → ${last.elapsedS.toFixed(1).padStart(6)}s` +
-        `   oszczędność: ${timeSav.toFixed(1)}s (${timePct}%)`,
+      ` Time:     ${data[0].elapsedS.toFixed(1).padStart(7)}s → ${last.elapsedS.toFixed(1).padStart(6)}s` +
+        `   savings: ${timeSav.toFixed(1)}s (${timePct}%)`,
     );
   }
   console.log(LINE + "\n");
 
   // ── LOKALNE MODELE (step-09) ───────────────────────────────────────────────
   console.log(LINE);
-  console.log(" PORÓWNANIE LOKALNYCH MODELI (step-09)");
+  console.log(" LOCAL MODEL COMPARISON (step-09)");
   console.log(LINE);
   const localModels = [
-    { name: "gpt-4o-mini (referencja)", diffs: "0", time: "~7s", acc: "100%" },
+    { name: "gpt-4o-mini (reference)", diffs: "0", time: "~7s", acc: "100%" },
     {
       name: "meta-llama-3.1-8b-instruct",
       diffs: "3x",
@@ -257,7 +275,7 @@ async function main() {
     { name: "google/gemma-4-e4b", diffs: "2x", time: "~40s", acc: "avg 53%" },
   ];
   console.log(
-    ` ${"Model".padEnd(35)} ${"Diffs".padStart(6)} ${"Czas".padStart(10)} ${"Zgodność".padStart(10)}`,
+    `${ "Model".padEnd(35)} ${"Diffs".padStart(6)} ${"Time".padStart(10)} ${"Accuracy".padStart(10)}`,
   );
   console.log("─".repeat(65));
   for (const m of localModels) {
@@ -285,10 +303,11 @@ async function main() {
           ? "—"
           : `${tokenSavPrev >= 0 ? "-" : "+"}${Math.abs(tokenSavPrev).toLocaleString()} (${pctPrev}%)`;
       const timeStr = d.elapsedS > 0 ? `${d.elapsedS}s` : "—";
+      const coverageStr = d.coverage ? `${d.coverage}` : "—";
       const bold = i === data.length - 1;
       const wrap = (s: string) => (bold ? `**${s}**` : s);
 
-      return `| ${wrap(d.name)} | ${wrap(fmt(d.totalTokens))} | ${wrap("$" + d.costUSD.toFixed(4))} | ${wrap(timeStr)} | ${wrap(vsBaseStr)} | ${wrap(vsPrevStr)} |`;
+      return `| ${wrap(d.name)} | ${wrap(fmt(d.totalTokens))} | ${wrap("$" + d.costUSD.toFixed(4))} | ${wrap(timeStr)} | ${wrap(coverageStr)} | ${wrap(vsBaseStr)} | ${wrap(vsPrevStr)} |`;
     })
     .join("\n");
 
@@ -306,23 +325,23 @@ async function main() {
       ? ((timeSav2 / data[0].elapsedS) * 100).toFixed(1)
       : "0";
 
-  const md = `# Podsumowanie optymalizacji tokenów
+  const md = `# Token optimization summary
 
-Wygenerowano: ${new Date().toLocaleString("pl-PL")}
+Generated: ${new Date().toLocaleString("en-US")}
 
-## Tabela porównawcza
+## Comparison table
 
-| Krok | Tokeny | Koszt | Czas | vs baseline | vs poprz. |
-|------|--------|-------|------|-------------|-----------|
+| Step | Tokens | Cost | Time | Coverage | vs baseline | vs prev. |
+|------|--------|------|------|----------|-------------|----------|
 ${mdRows}
 
-## Całkowite oszczędności (Step 01 → Step ${String(data.length).padStart(2, "0")})
+## Total savings (Step 01 \u2192 Step ${String(data.length).padStart(2, "0")})
 
-| Metryka | Baseline | Wynik końcowy | Oszczędność |
-|---------|----------|---------------|-------------|
-| Tokeny | ${fmt(baseline.totalTokens)} | ${fmt(last2.totalTokens)} | **${fmt(tSav)} (${tPct}%)** |
-| Koszt | $${baseline.costUSD.toFixed(4)} | $${last2.costUSD.toFixed(4)} | **$${cSav.toFixed(4)} (${cPct}%)** |
-${data[0].elapsedS > 0 && last2.elapsedS > 0 ? `| Czas | ${data[0].elapsedS}s | ${last2.elapsedS}s | **${timeSav2.toFixed(1)}s (${timePct2}%)** |` : ""}
+| Metric | Baseline | Final result | Savings |
+|--------|----------|--------------|---------|
+| Tokens | ${fmt(baseline.totalTokens)} | ${fmt(last2.totalTokens)} | **${fmt(tSav)} (${tPct}%)** |
+| Cost | $${baseline.costUSD.toFixed(4)} | $${last2.costUSD.toFixed(4)} | **$${cSav.toFixed(4)} (${cPct}%)** |
+${data[0].elapsedS > 0 && last2.elapsedS > 0 ? `| Time | ${data[0].elapsedS}s | ${last2.elapsedS}s | **${timeSav2.toFixed(1)}s (${timePct2}%)** |` : ""}
 `;
 
   const scaleTotal = 14000;
@@ -332,39 +351,39 @@ ${data[0].elapsedS > 0 && last2.elapsedS > 0 ? `| Czas | ${data[0].elapsedS}s | 
     "\\$" + Math.round(n).toLocaleString("en-US").replace(/,/g, " ");
 
   const scalabilitySection = `
-## Skalowalność — realny scenariusz
+## Scalability \u2014 real-world scenario
 
-> Firma wydała **${scaleFmt(scaleTotal)}** na klasyfikację ticketów. Mogła wydać **~${scaleFmt(scaleAfter)}**.
+> A company spent **${scaleFmt(scaleTotal)}** on ticket classification. They could have spent **~${scaleFmt(scaleAfter)}**.
 
-Proporcja oszczędności z tej prezentacji (\`$${baseline.costUSD.toFixed(4)} → $${last2.costUSD.toFixed(4)}\`, czyli **${cPct}%**) przełożona na skalę ${scaleFmt(scaleTotal)}:
+The savings ratio from this presentation (\`$${baseline.costUSD.toFixed(4)} \u2192 $${last2.costUSD.toFixed(4)}\`, i.e. **${cPct}%**) scaled to ${scaleFmt(scaleTotal)}:
 
-| Scenariusz | Koszt |
-|------------|-------|
-| Bez optymalizacji (baseline) | **${scaleFmt(scaleTotal)}** |
-| Po optymalizacjach | **~${scaleFmt(scaleAfter)}** |
-| **Oszczędność** | **~${scaleFmt(scaleSav)} (${cPct}%)** |
+| Scenario | Cost |
+|----------|------|
+| Without optimizations (baseline) | **${scaleFmt(scaleTotal)}** |
+| After optimizations | **~${scaleFmt(scaleAfter)}** |
+| **Savings** | **~${scaleFmt(scaleSav)} (${cPct}%)** |
 `;
 
   const localModelsTable = `
-## Porównanie lokalnych modeli (step-09)
+## Local model comparison (step-09)
 
-| Model | Odpalenia | Avg zgodność | Czas | Uwagi |
-|-------|-----------|-------------|------|-------|
-| gpt-4o-mini (referencja) | — | 100% | ~7s | punkt odniesienia |
-| meta-llama-3.1-8b-instruct | 3× | **63.0%** | ~20s | 68% / 68% / 53% |
-| qwen2.5-7b-instruct | 3× | **61.3%** | ~30s | 68% / 53% / 63% |
-| google/gemma-4-e4b | 2× | **52.5%** | ~40s | 47% / 58% |
+| Model | Runs | Avg accuracy | Time | Notes |
+|-------|------|-------------|------|-------|
+| gpt-4o-mini (reference) | \u2014 | 100% | ~7s | reference point |
+| meta-llama-3.1-8b-instruct | 3\u00d7 | **63.0%** | ~20s | 68% / 68% / 53% |
+| qwen2.5-7b-instruct | 3\u00d7 | **61.3%** | ~30s | 68% / 53% / 63% |
+| google/gemma-4-e4b | 2\u00d7 | **52.5%** | ~40s | 47% / 58% |
 
-> ⚠️ Wszystkie trzy lokalne modele wykazały **bardzo niską zgodność** z referencją — poniżej 65% średnio.
-> Najlepszy wynik: meta-llama-3.1-8b-instruct (avg 63%), ale nadal o 37 punktów procentowych gorszy od gpt-4o-mini.
-> Wysoka zmienność między odpaleniami (różnice do 15 pp) sugeruje brak stabilności klasyfikacji lokalnych modeli.
-> 💡 Testowane modele to modele 7–8B parametrów. Modele z większą liczbą parametrów (np. 32B, 70B) mogłyby osiągnąć znacznie lepszą zgodność — kosztem wyższych wymagań sprzętowych i dłuższego czasu inferencji.
+> \u26a0\ufe0f All three local models showed **very low accuracy** vs the reference \u2014 below 65% on average.
+> Best result: meta-llama-3.1-8b-instruct (avg 63%), still 37 percentage points below gpt-4o-mini.
+> High variance between runs (differences up to 15 pp) suggests instability in local model classification.
+> \ud83d\udca1 The tested models are 7\u20138B parameter models. Larger models (e.g. 32B, 70B) could achieve significantly better accuracy \u2014 at the cost of higher hardware requirements and longer inference time.
 `;
 
   const mdFull = md + scalabilitySection + localModelsTable;
   const outPath = path.resolve(process.cwd(), "presentation/SUMMARY.md");
   await writeFile(outPath, mdFull, "utf8");
-  console.log(`Markdown zapisany: presentation/SUMMARY.md\n`);
+  console.log(`Markdown saved: presentation/SUMMARY.md\n`);
 }
 
 main().catch(console.error);

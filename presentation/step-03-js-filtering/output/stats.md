@@ -1,42 +1,42 @@
-# Step 03 — JS filtruje dane PRZED modelem
+# Step 03 — JS filters data BEFORE the model
 
-## Parametry
+## Parameters
 
 - **Model:** gpt-5.5
-- **Język promptu:** Angielski
-- **Optymalizacja:** JS filtruje CSV po product_category="Electronics" → model dostaje mniej danych
-- **Wszystkich ticketów w CSV:** 50
-- **Ticketów Electronics (po JS filter):** 19
-- **Odrzuconych przez JS za 0 tokenów:** 31
+- **Prompt language:** English
+- **Optimization:** JS filters CSV by product_category="Electronics" → model receives less data
+- **Total tickets in CSV:** 50
+- **Electronics tickets (after JS filter):** 19
+- **Filtered out by JS at 0 tokens:** 31
 
-## Zużycie tokenów
+## Token usage
 
-| Metryka           | Wartość     |
+| Metric            | Value       |
 | ----------------- | ----------- |
 | Prompt tokens     | 4,589       |
 | Completion tokens | 1,000       |
 | **TOTAL tokens**  | **5,589**   |
-| **Koszt**         | **$0.0529** |
+| **Cost**          | **$0.0529** |
 
-## Porównanie z poprzednimi krokami
+## Comparison with previous steps
 
-| Krok                    | Tokeny    | Koszt       | Oszcz. tokenów vs poprz. | Oszcz. kosztów vs poprz. |
-| ----------------------- | --------- | ----------- | ------------------------ | ------------------------ |
-| Step 01 (PL, brak opt.) | 10,850    | $0.0988     | — (baseline)             | — (baseline)             |
-| Step 02 (EN)            | 8,386     | $0.0810     | 2,464 (22.7%)            | $0.0178 (18.0%)          |
-| **Step 03 (obecne)**    | **5,589** | **$0.0529** | 2,797 (33.4%)            | $0.0281 (34.6%)          |
+| Step                    | Tokens    | Cost        | Token savings vs prev. | Cost savings vs prev. |
+| ----------------------- | --------- | ----------- | ---------------------- | --------------------- |
+| Step 01 (PL, no opt.)   | 10,850    | $0.0988     | — (baseline)           | — (baseline)          |
+| Step 02 (EN)            | 8,386     | $0.0810     | 2,464 (22.7%)          | $0.0178 (18.0%)       |
+| **Step 03 (current)**   | **5,589** | **$0.0529** | 2,797 (33.4%)          | $0.0281 (34.6%)       |
 
-## Czas odpowiedzi
+## Response time
 
 22.4s
 
-## Uwagi
+## Notes
 
-JS odfiltrował 31 ticketów za 0 tokenów. Model w step-01 musiał przeczytać WSZYSTKIE 50, żeby znaleźć te same 19.
+JS filtered out 31 tickets at 0 token cost. The model in step-01 had to read ALL 50 tickets to find the same 19.
 
-## Porównanie z plikiem referencyjnym
+## Comparison with reference file
 
-- **Tickety referencyjne (Electronics):** 19
-- **Tickety zwrócone przez model:** 19
+- **Reference tickets (Electronics):** 19
+- **Tickets returned by model:** 19
 
-✅ **Dane idealnie się pokrywają!** Wszystkie 19 ticketów zgadza się co do ticket_id, priority i sentiment.
+✅ **Data matches perfectly!** All 19 tickets agree on ticket_id, priority and sentiment.
