@@ -34,6 +34,44 @@ const CHEAP_MODEL = "gpt-4o-mini";
 const EXPENSIVE_MODEL = "gpt-5.5";
 const PHASE1_BATCH_SIZE = Number(process.env.LOCAL_CHEAP_BATCH_SIZE ?? "3");
 
+// Hard escalation rules — DO NOT trust the cheap model's self-reported confidence.
+// Small models are overconfident, so we escalate to the expensive model whenever
+// the cost of a mistake is high, regardless of the declared confidence.
+const ESCALATION_KEYWORDS =
+  /\b(lawyer|legal|court|police|fraud|scam|scandal|breach|hack(?:ed)?|smok(?:e|ing)|fire|burn(?:ing)?|dangerous|injur)/i;
+
+function extractMaxAmountPln(text: string): number {
+  let max = 0;
+  for (const m of text.matchAll(/(\d[\d\s.,]*)\s*PLN/gi)) {
+    const num = Number.parseFloat(m[1].replace(/[\s,]/g, ""));
+    if (!Number.isNaN(num)) max = Math.max(max, num);
+  }
+  return max;
+}
+
+function shouldEscalate(
+  ticket: Record<string, string>,
+  classification: { priority: string; sentiment: string; confidence: string },
+): boolean {
+  // 1. The cheap model itself is unsure
+  if (classification.confidence !== "high") return true;
+  // 2. High cost of error — always confirm critical/high priority with the strong model
+  if (
+    classification.priority === "critical" ||
+    classification.priority === "high"
+  ) {
+    return true;
+  }
+  const text = `${ticket.subject ?? ""} ${ticket.description ?? ""}`;
+  // 3. Risk / legal / safety trigger words
+  if (ESCALATION_KEYWORDS.test(text)) return true;
+  // 4. Large amounts
+  if (extractMaxAmountPln(text) > 1000) return true;
+  // 5. Very short / ambiguous ticket
+  if ((ticket.description ?? "").trim().length < 40) return true;
+  return false;
+}
+
 async function main() {
   const previousStats = await loadStatsBefore(4);
 
@@ -80,8 +118,10 @@ Be conservative — when in doubt between high and medium, choose medium.`;
 ${JSON.stringify(batch, null, 2)}`;
 
     //✅ 3. Define cheap model with appropriate prompt (add confidence instructions)
+    // temperature: 0 → deterministic output, so coverage no longer fluctuates between runs
     const responseCheap = await client.chat.completions.create({
       model: CHEAP_MODEL,
+      temperature: 0,
       response_format: TICKET_CLASSIFICATION_SCHEMA,
       messages: [
         { role: "system", content: systemPromptCheap },
@@ -115,13 +155,19 @@ ${JSON.stringify(batch, null, 2)}`;
     cheapUsage.completion_tokens,
   );
 
-  // ✅ 3. Only "high" confidence stays with the cheap model; "medium" and "low" go to the expensive one
-  const highConfidence = cheapTickets.filter(
-    (t: any) => t.confidence === "high",
-  );
-  const lowConfidence = cheapTickets.filter(
-    (t: any) => t.confidence === "low" || t.confidence === "medium",
-  );
+  // ✅ 3. Routing decision — combine the cheap model's confidence with hard JS rules.
+  // A ticket stays on the cheap model only if shouldEscalate() returns false.
+  const ticketById = new Map(electronicsTickets.map((t) => [t.ticket_id, t]));
+  const keptOnCheap: any[] = [];
+  const escalated: any[] = [];
+  for (const t of cheapTickets) {
+    const source = ticketById.get(t.ticket_id) ?? {};
+    if (shouldEscalate(source, t)) {
+      escalated.push(t);
+    } else {
+      keptOnCheap.push(t);
+    }
+  }
 
   let expensiveCost = 0;
   let expensiveUsage = {
@@ -132,10 +178,10 @@ ${JSON.stringify(batch, null, 2)}`;
   let elapsedPhase2 = "0";
   let expensiveTickets: any[] = [];
 
-  if (lowConfidence.length > 0) {
-    const lowIds = lowConfidence.map((t: any) => t.ticket_id);
+  if (escalated.length > 0) {
+    const escalatedIds = new Set(escalated.map((t: any) => t.ticket_id));
     const ticketsForExpensive = electronicsTickets.filter((t) =>
-      lowIds.includes(t.ticket_id),
+      escalatedIds.has(t.ticket_id),
     );
 
     //✅ 4. Define expensive model and call API only for "medium"/"low confidence"
@@ -174,9 +220,9 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
 
   // ✅ 5. Merge results from both models (shown in chat-history.json)
   const finalTickets = mergeRoutedTickets(
-    highConfidence,
+    keptOnCheap,
     expensiveTickets,
-    lowConfidence,
+    escalated,
     CHEAP_MODEL,
     EXPENSIVE_MODEL,
   );
@@ -208,8 +254,8 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
           cheapModel: CHEAP_MODEL,
           expensiveModel: EXPENSIVE_MODEL,
           totalTickets: electronicsTickets.length,
-          highConfidence: highConfidence.length,
-          lowConfidence: lowConfidence.length,
+          keptOnCheap: keptOnCheap.length,
+          escalated: escalated.length,
         },
         phase1: {
           model: CHEAP_MODEL,
@@ -248,7 +294,7 @@ ${JSON.stringify(ticketsForExpensive, null, 2)}`;
 
   // 8a. Save stats.md
   const statsMarkdown =
-    `# Step 04 — Model Routing\n\n## Parameters\n- **Cheap model:** ${CHEAP_MODEL}\n- **Expensive model:** ${EXPENSIVE_MODEL}\n- **Prompt language:** English\n- **Optimizations:** JS filtering + EN + Model Routing\n- **Electronics tickets:** ${electronicsTickets.length}\n- **High confidence (cheap model):** ${highConfidence.length}\n- **Medium/Low confidence (→ expensive model):** ${lowConfidence.length}\n\n## Token usage\n| Phase | Model | Prompt | Completion | Total | Cost |\n|-------|-------|--------|------------|-------|------|\n| Phase 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Phase 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **TOTAL** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Comparison with previous steps\n| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |\n|------|--------|------|------------------------|----------------------|\n${comparisonRows}\n\n## Response time\n- Phase 1: ${elapsedPhase1}s\n- Phase 2: ${elapsedPhase2}s\n- **Total:** ${totalElapsed}s\n\n## How it works\n1. Cheap model (${CHEAP_MODEL}) classifies ALL tickets + returns confidence\n2. Tickets with confidence="high" → final result (cheap!)\n3. Tickets with confidence="medium"/"low" → reclassified by expensive model (${EXPENSIVE_MODEL})\n4. Merge results\n` +
+    `# Step 04 — Model Routing\n\n## Parameters\n- **Cheap model:** ${CHEAP_MODEL}\n- **Expensive model:** ${EXPENSIVE_MODEL}\n- **Prompt language:** English\n- **Optimizations:** JS filtering + EN + Model Routing\n- **Electronics tickets:** ${electronicsTickets.length}\n- **Kept on cheap model:** ${keptOnCheap.length}\n- **Escalated to expensive model:** ${escalated.length}\n\n## Token usage\n| Phase | Model | Prompt | Completion | Total | Cost |\n|-------|-------|--------|------------|-------|------|\n| Phase 1 | ${CHEAP_MODEL} | ${cheapUsage.prompt_tokens.toLocaleString()} | ${cheapUsage.completion_tokens.toLocaleString()} | ${cheapUsage.total_tokens.toLocaleString()} | $${cheapCost.toFixed(4)} |\n| Phase 2 | ${EXPENSIVE_MODEL} | ${expensiveUsage.prompt_tokens.toLocaleString()} | ${expensiveUsage.completion_tokens.toLocaleString()} | ${expensiveUsage.total_tokens.toLocaleString()} | $${expensiveCost.toFixed(4)} |\n| **TOTAL** | — | ${totalPromptTokens.toLocaleString()} | ${totalCompletionTokens.toLocaleString()} | **${totalTokens.toLocaleString()}** | **$${totalCost.toFixed(4)}** |\n\n## Comparison with previous steps\n| Step | Tokens | Cost | Token savings vs prev. | Cost savings vs prev. |\n|------|--------|------|------------------------|----------------------|\n${comparisonRows}\n\n## Response time\n- Phase 1: ${elapsedPhase1}s\n- Phase 2: ${elapsedPhase2}s\n- **Total:** ${totalElapsed}s\n\n## How it works\n1. Cheap model (${CHEAP_MODEL}, temperature=0 → deterministic) classifies ALL tickets + confidence\n2. A ticket stays on the cheap model ONLY if it is NOT escalated by the JS rules\n3. Hard escalation rules (independent of self-reported confidence): confidence≠high, priority critical/high, risk/legal keywords, amount > 1000 PLN, or very short description\n4. Escalated tickets → reclassified by expensive model (${EXPENSIVE_MODEL}); then merge results\n` +
     (await buildRefComparisonSection(
       finalTickets,
       "presentation/data/categorized_by_gpt_5_5_high_thinking_en.json",
